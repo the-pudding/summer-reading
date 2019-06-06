@@ -6,18 +6,20 @@
 	}).catch(console.error)
 */
 
-function loadA(file) {
-  return new Promise((resolve, reject) => {
-    d3.csv(`assets/data/${file}`)
-      .then(result => {
-        // clean here
-        resolve(result);
-      })
-      .catch(reject);
-  });
+function clean(data) {
+  return data.map(d => ({
+    ...d,
+    GoodreadsRating: +d.GoodreadsRating,
+    GoodreadsReviews: +d.GoodreadsReviews,
+    PubYear: +d.PubYear,
+  }));
 }
 
 export default function loadData() {
-  const loads = [loadA('filename.csv')];
-  return Promise.all(loads);
+  return new Promise((resolve, reject) => {
+    d3.json(`assets/data/books.json`)
+      .then(clean)
+      .then(resolve)
+      .catch(reject);
+  });
 }
