@@ -49,6 +49,16 @@ function bindData() {
   el.__data__ = cleanDatum(datum);
 }
 
+function colorBooks(d){
+  const yearRange = [1707, 2017]
+  const colors = ['#3e93ad', '#5f9ba0', '#79a392', '#90ab82', '#a5b271', '#bab85d', '#cebd45', '#e2c222', '#e1ba1d', '#e1af18', '#e2a113', '#e38f0e', '#e47909', '#e45d07', '#e43307']
+  const colorScale = d3.scaleQuantize()
+    .domain(yearRange)
+    .range(colors)
+
+  return colorScale(d)
+}
+
 function stack() {
   const damp = 1;
   const scaleSin = 1;
@@ -63,12 +73,15 @@ function stack() {
 
   $book.each((d, i, n) => {
     const $b = d3.select(n[i]);
+    const $before = d3.select(n[i])
+    console.log($before)
     const w = Math.floor(baseW + Math.random() * baseW * 0.25);
     const h = Math.floor(baseH + Math.random() * baseH * 0.33);
     $b.style('width', `${w}px`);
     $b.style('height', `${h}px`);
     $b.style('top', `${posY}px`);
     $b.style('left', `${centerX + posX}px`);
+    $b.style('background', colorBooks(d.year))
     const dir = Math.random() < 0.5 ? -1 : 1;
     const offset = Math.random() * dir * scaleOff;
     const acc = Math.random();
