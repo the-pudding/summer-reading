@@ -17,20 +17,19 @@
 </head>
 
 <body>
-
+	
 	{{> base/header 'sticky'}}
 
 	<main id='content'>
 
 		{{> story/intro }}
-
-		{{#each books}}
-			<div class='book'>{{TitleClean}}</div>
-		{{/each}}
+		{{> story/sidebar }}
+		{{> story/graphic }}
+		{{> story/minimap }}
 
 	</main>
 
-	<!-- {{> base/footer }} -->
+	{{!-- {{> base/footer }} --}}
 
 
 	<script src='{{basepath}}assets/scripts/d3.v5.9.1.min.js'></script>
