@@ -46,11 +46,20 @@ function bindData() {
   const datum = {};
 
   dataAttr.forEach(attr => (datum[attr] = $b.attr(`data-${attr}`)));
+  datum.size = setSize()
   el.__data__ = cleanDatum(datum);
 }
 
+function setSize(){
+  const baseW = 480;
+  const baseH = 72;
+  const w = Math.floor(baseW + Math.random() * baseW * 0.25);
+  const h = Math.floor(baseH + Math.random() * baseH * 0.33);
+  return {width: w, height: h}
+}
+
 function colorBooks(d){
-  const yearRange = [1707, 2017]
+  const yearRange = [1884, 2017]
   const colors = ['#3e93ad', '#5f9ba0', '#79a392', '#90ab82', '#a5b271', '#bab85d', '#cebd45', '#e2c222', '#e1ba1d', '#e1af18', '#e2a113', '#e38f0e', '#e47909', '#e45d07', '#e43307']
   const colorScale = d3.scaleQuantize()
     .domain(yearRange)
@@ -60,11 +69,9 @@ function colorBooks(d){
 }
 
 function stack() {
-  const damp = 1;
+  const damp = 1 / $book.size();
   const scaleSin = 1;
   const scaleOff = 10;
-  const baseW = 480;
-  const baseH = 72;
   let posY = 0;
   let posX = 0;
 
@@ -73,10 +80,8 @@ function stack() {
 
   $book.each((d, i, n) => {
     const $b = d3.select(n[i]);
-    const $before = d3.select(n[i])
-    console.log($before)
-    const w = Math.floor(baseW + Math.random() * baseW * 0.25);
-    const h = Math.floor(baseH + Math.random() * baseH * 0.33);
+    const w = d.size.width;
+    const h = d.size.height;
     $b.style('width', `${w}px`);
     $b.style('height', `${h}px`);
     $b.style('top', `${posY}px`);
