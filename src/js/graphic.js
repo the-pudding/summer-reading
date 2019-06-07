@@ -68,7 +68,7 @@ function colorBooks(d){
   return colorScale(d)
 }
 
-function stack() {
+function stack(sel) {
   const damp = 1 / $book.size();
   const scaleSin = 1;
   const scaleOff = 10;
@@ -78,7 +78,7 @@ function stack() {
   const graphicW = $graphic.node().offsetWidth;
   const centerX = graphicW / 2;
 
-  $book.each((d, i, n) => {
+  sel.each((d, i, n) => {
     const $b = d3.select(n[i]);
     const w = d.size.width;
     const h = d.size.height;
@@ -98,7 +98,7 @@ function stack() {
 
 function setup() {
   $book.each(bindData);
-  stack();
+  stack($book);
 }
 
 async function init() {
