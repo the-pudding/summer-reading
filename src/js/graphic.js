@@ -4,6 +4,7 @@ import { longStackSupport } from 'q';
 
 const $graphic = d3.select('#graphic');
 const $book = $graphic.selectAll('.book');
+const $sidebar = d3.select('#sidebar')
 
 const bookData = null;
 
@@ -68,6 +69,41 @@ function colorBooks(d){
   return colorScale(d)
 }
 
+function sortData(slug){
+  let $sorted = null
+
+  console.log(slug)
+  if (slug === 'random') $sorted = $book.sort(() => Math.random() - 0.5 )
+  else if (slug === 'author') $sorted = $book.sort((a, b) => {
+    if (a.author && b.author){
+      let authorA = a.author[0].last
+      let authorB = b.author[0].last
+      return d3.ascending(authorA, authorB)}
+  })
+  else $sorted = $book.sort((a, b) => d3.ascending(a[slug], b[slug]))
+  
+  return $sorted
+}
+
+function handleSort(){
+  const sel = d3.select(this)
+  const slug = sel.attr('data-slug')
+
+  let $sorted = sortData(slug)
+
+  stack($sorted)
+}
+
+function setupSort(){
+  const buttons = $sidebar.selectAll('.nav__sort-button')
+
+  buttons.on('click', handleSort)
+}
+
+function setupUI(){
+  setupSort()
+}
+
 function stack(sel) {
   const damp = 1 / $book.size();
   const scaleSin = 1;
@@ -99,6 +135,7 @@ function stack(sel) {
 function setup() {
   $book.each(bindData);
   stack($book);
+  setupUI()
 }
 
 async function init() {
