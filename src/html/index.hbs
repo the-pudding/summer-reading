@@ -24,9 +24,13 @@
 
 		{{> story/intro }}
 
+		{{#each books}}
+			<div class='book'>{{TitleClean}}</div>
+		{{/each}}
+
 	</main>
 
-	{{> base/footer }}
+	<!-- {{> base/footer }} -->
 
 
 	<script src='{{basepath}}assets/scripts/d3.v5.9.1.min.js'></script>

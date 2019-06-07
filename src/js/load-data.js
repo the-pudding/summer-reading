@@ -9,6 +9,7 @@
 function clean(data) {
   return data.map(d => ({
     ...d,
+    AuthorClean: d.AuthorClean.split('|'),
     GoodreadsRating: +d.GoodreadsRating,
     GoodreadsReviews: +d.GoodreadsReviews,
     PubYear: +d.PubYear,
