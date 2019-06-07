@@ -1,7 +1,15 @@
 #sidebar
 	height 100vh
 	width 100%
-	max-width 40rem
+	max-width 20rem
 	position fixed
 	top 0
 	left 0
+	transform translateX(-100%)
+	transition transform 400ms ease-in-out
+	z-index 50
+	background rgba($bg-gray, 0.4)
+	box-shadow inset -4px 0px 8px rgba(0, 0, 0, 0.25)
+	margin-top 3rem
+	+mq('bp-6')
+		transform translateX(0)
