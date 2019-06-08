@@ -81,7 +81,7 @@ function sortData(slug){
       return d3.ascending(authorA, authorB)}
   })
   else $sorted = $book.sort((a, b) => d3.ascending(a[slug], b[slug]))
-  
+
   return $sorted
 }
 
@@ -120,7 +120,11 @@ function stack(sel) {
     const h = d.size.height;
     $b.style('width', `${w}px`);
     $b.style('height', `${h}px`);
-    $b.style('top', `${posY}px`);
+
+    $b.transition()
+      .duration(500)
+      .ease(d3.easeCircleOut)
+      .style('top', `${posY}px`);
     $b.style('left', `${centerX + posX}px`);
     $b.style('background', colorBooks(d.year))
     const dir = Math.random() < 0.5 ? -1 : 1;
