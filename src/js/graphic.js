@@ -6,6 +6,8 @@ const $graphic = d3.select('#graphic');
 const $book = $graphic.selectAll('.book');
 const $sidebar = d3.select('#sidebar');
 const filters = {keyword: false}
+const $miniGraphic = d3.select('#minimap')
+const $mini = $miniGraphic.selectAll('.book-mini')
 
 function resize() {}
 
@@ -27,6 +29,21 @@ function bindData() {
   dataAttr.forEach(attr => (datum[attr] = $b.attr(`data-${attr}`)));
   datum.size = setSize();
   el.__data__ = cleanDatum(datum);
+}
+
+function makeMini(){
+  console.log($book.nodes()[0])
+  $mini.each((d, i, n) => {
+    const bigBook = $book.nodes()[i]
+    const bigWidth = bigBook.offsetWidth
+    const bigHeight = bigBook.offsetHeight
+    const bigColor = d3.select(bigBook)
+      .style('background')
+    const $m = d3.select(n[i]);
+    $m.style('width', `${Math.ceil(bigWidth / 6)}px`)
+    $m.style('height', '2px')
+    $m.style('background', bigColor)
+  })
 }
 
 function colorBooks(d) {
@@ -68,7 +85,7 @@ function stack(sel) {
     const h = d.size.height;
     $b.style('width', `${w}px`);
     $b.style('height', `${h}px`);
-    console.log(d.previousState)
+
     const filterState = applyFilters(d)
     d.previousState = filterState
     if (filterState === 'enter') $b.style('left', '-500px')
@@ -129,6 +146,7 @@ function setupUI() {
 function setup() {
   $book.each(bindData);
   stack($book);
+  makeMini();
   setupUI();
 }
 
