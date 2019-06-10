@@ -10,13 +10,17 @@ const $miniGraphic = d3.select('#minimap');
 const $mini = $miniGraphic.selectAll('.book');
 
 const REM = 16;
-const MAX_YEAR = 2004;
+const MAX_YEAR = 2010;
+const MIN_YEAR = 1880;
 const NUM_BOOKS = $book.size();
 
-const scaleColor = d3.scaleQuantize().range(COLORS);
+const scaleColor = d3
+  .scaleQuantize()
+  .range(COLORS)
+  .nice();
 let miniRatio = 0;
 
-function resize() {
+function setSizes() {
   const pad = REM * 2;
   const ratio = 1 / 6;
   const sidebarW = $sidebar.node().offsetWidth;
@@ -45,6 +49,11 @@ function resize() {
     d3.select(n[i]).style('width', `${Math.floor(width / miniRatio)}px`);
     d3.select(n[i]).style('height', `${miniH}px`);
   });
+}
+
+function resize() {
+  setSizes();
+  stack();
 }
 
 function bindData() {
@@ -108,7 +117,7 @@ function stackBook({ graphic, posX }) {
 
 function stack() {
   const damp = 1 / NUM_BOOKS;
-  const scaleSin = 50;
+  const scaleSin = $graphic.node().offsetWidth * 0.05;
   const scaleOff = 10;
 
   const posX = d3.range(NUM_BOOKS).map(i => {
@@ -162,22 +171,23 @@ function colorBg(d) {
 
 function colorize() {
   const data = $book.data();
-  // const yearRange = [d3.min(data, d => d.year), MAX_YEAR];
-  const yearRange = [1884, 2004];
+  const yearRange = [MIN_YEAR, MAX_YEAR];
+  // const yearRange = [1884, 2004];
   scaleColor.domain(yearRange);
-
+  console.log(COLORS.length);
+  console.log(scaleColor.thresholds());
   $book.each(colorBg);
   $mini.each(colorBg);
 }
 
 function setup() {
-  resize();
   $book.each(bindData);
   $mini.each(bindData);
   colorize();
   stack();
   makeMini();
   setupUI();
+  resize();
 }
 
 async function init() {
