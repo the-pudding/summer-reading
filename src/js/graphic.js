@@ -5,6 +5,7 @@ import COLORS from './colors';
 const $graphic = d3.select('#graphic');
 const $book = $graphic.selectAll('.book');
 const $sidebar = d3.select('#sidebar');
+const filters = {keyword: false}
 
 function resize() {}
 
@@ -38,9 +39,22 @@ function colorBooks(d) {
   return colorScale(d);
 }
 
+function applyFilters(d){
+  let onScreen = true
+  Object.keys(filters)
+    .forEach(k => {
+      if (filters[k]) {
+        onScreen = d.year === 2016
+      }
+    })
+    if (onScreen && d.previousState === 'exit') return 'enter'
+    else if (!onScreen && d.previousState === 'update') return 'exit'
+    return 'update'
+}
+
 function stack(sel) {
   const damp = 1 / $book.size();
-  const scaleSin = 2;
+  const scaleSin = 0;
   const scaleOff = 10;
   let posY = 0;
   let posX = 0;
@@ -54,20 +68,26 @@ function stack(sel) {
     const h = d.size.height;
     $b.style('width', `${w}px`);
     $b.style('height', `${h}px`);
+    console.log(d.previousState)
+    const filterState = applyFilters(d)
+    d.previousState = filterState
+    if (filterState === 'enter') $b.style('left', '-500px')
+    const animateX = filterState === 'exit' ? '2000px' : `${centerX + posX}px`
 
     $b.transition()
-      .duration(500)
+      .duration(5000)
       .ease(d3.easeCircleOut)
-      .style('top', `${posY}px`);
-    $b.style('left', `${centerX + posX}px`);
+      .style('top', `${posY}px`)
+      .style('left', animateX);
+    // TODO Only run once
     $b.style('background', colorBooks(d.year));
+    $b.style('opacity', applyFilters)
     const dir = Math.random() < 0.5 ? -1 : 1;
-    const offset = Math.random() * dir * scaleOff;
+    const offset = i === 0 ? 0 : Math.random() * dir * scaleOff;
     // const acc = Math.random();
-    posX += Math.sin(Math.PI / 2 + i * damp * Math.PI * 2) * scaleSin + offset;
+    posX = Math.sin(i * damp * Math.PI * 2) * scaleSin + offset;
     // posX = offset;
-    posY += h;
-    console.log(i * damp);
+    if (filterState !== 'exit') posY += h;
   });
 }
 
@@ -89,9 +109,11 @@ function sortData(slug) {
 }
 
 function handleSort() {
-  const sel = d3.select(this);
-  const slug = sel.attr('data-slug');
-  const $sorted = sortData(slug);
+  // const sel = d3.select(this);
+  // const slug = sel.attr('data-slug');
+  // const $sorted = sortData(slug);
+  filters.keyword = !filters.keyword
+  const $sorted = $book
   stack($sorted);
 }
 
