@@ -5,18 +5,46 @@ import COLORS from './colors';
 const $graphic = d3.select('#graphic');
 const $book = $graphic.selectAll('.book');
 const $sidebar = d3.select('#sidebar');
-const filters = {keyword: false}
-const $miniGraphic = d3.select('#minimap')
-const $mini = $miniGraphic.selectAll('.book-mini')
+const filters = { keyword: false };
+const $miniGraphic = d3.select('#minimap');
+const $mini = $miniGraphic.selectAll('.book');
 
-function resize() {}
+const REM = 16;
+const MAX_YEAR = 2004;
+const NUM_BOOKS = $book.size();
 
-function setSize() {
-  const baseW = 480;
-  const baseH = 72;
-  const w = Math.floor(baseW + Math.random() * baseW * 0.25);
-  const h = Math.floor(baseH + Math.random() * baseH * 0.33);
-  return { width: w, height: h };
+const scaleColor = d3.scaleQuantize().range(COLORS);
+let miniRatio = 0;
+
+function resize() {
+  const pad = REM * 2;
+  const ratio = 1 / 6;
+  const sidebarW = $sidebar.node().offsetWidth;
+  const miniGraphicW = $miniGraphic.node().offsetWidth;
+  const baseW = sidebarW + miniGraphicW - pad;
+  const baseH = baseW * ratio;
+
+  const sizes = d3.range(NUM_BOOKS).map(() => {
+    const w = Math.floor(baseW + Math.random() * baseW * 0.25);
+    const h = Math.floor(baseH + Math.random() * baseH * 0.33);
+    return { width: w, height: h };
+  });
+
+  $book.each((d, i, n) => {
+    const { width, height } = sizes[i];
+    d3.select(n[i]).style('width', `${width}px`);
+    d3.select(n[i]).style('height', `${height}px`);
+  });
+
+  const miniH = Math.max(1, Math.floor(window.innerHeight / NUM_BOOKS));
+  const maxBookW = d3.max(sizes, d => d.width);
+  miniRatio = maxBookW / (miniGraphicW * 0.33);
+
+  $mini.each((d, i, n) => {
+    const { width } = sizes[i];
+    d3.select(n[i]).style('width', `${Math.floor(width / miniRatio)}px`);
+    d3.select(n[i]).style('height', `${miniH}px`);
+  });
 }
 
 function bindData() {
@@ -27,85 +55,70 @@ function bindData() {
   const datum = {};
 
   dataAttr.forEach(attr => (datum[attr] = $b.attr(`data-${attr}`)));
-  datum.size = setSize();
   el.__data__ = cleanDatum(datum);
 }
 
-function makeMini(){
-  console.log($book.nodes()[0])
+function makeMini() {
+  console.log($book.nodes()[0]);
   $mini.each((d, i, n) => {
-    const bigBook = $book.nodes()[i]
-    const bigWidth = bigBook.offsetWidth
-    const bigHeight = bigBook.offsetHeight
-    const bigColor = d3.select(bigBook)
-      .style('background')
+    const bigBook = $book.nodes()[i];
+    const bigColor = d3.select(bigBook).style('background');
     const $m = d3.select(n[i]);
-    $m.style('width', `${Math.ceil(bigWidth / 6)}px`)
-    $m.style('height', '2px')
-    $m.style('background', bigColor)
-  })
+    $m.style('background', bigColor);
+  });
 }
 
-function colorBooks(d) {
-  const yearRange = [1884, 2017];
-  const colorScale = d3
-    .scaleQuantize()
-    .domain(yearRange)
-    .range(COLORS);
-
-  return colorScale(d);
+function applyFilters(d) {
+  let onScreen = true;
+  Object.keys(filters).forEach(k => {
+    if (filters[k]) {
+      onScreen = d.year === 2016;
+    }
+  });
+  if (onScreen && d.previousState === 'exit') return 'enter';
+  if (!onScreen && d.previousState === 'update') return 'exit';
+  return 'update';
 }
 
-function applyFilters(d){
-  let onScreen = true
-  Object.keys(filters)
-    .forEach(k => {
-      if (filters[k]) {
-        onScreen = d.year === 2016
-      }
-    })
-    if (onScreen && d.previousState === 'exit') return 'enter'
-    else if (!onScreen && d.previousState === 'update') return 'exit'
-    return 'update'
-}
-
-function stack(sel) {
-  const damp = 1 / $book.size();
-  const scaleSin = 0;
-  const scaleOff = 10;
-  let posY = 0;
-  let posX = 0;
-
-  const graphicW = $graphic.node().offsetWidth;
+function stackBook({ graphic, posX }) {
+  const graphicW = graphic.node().offsetWidth;
   const centerX = graphicW / 2;
+  const offX = graphicW * 1.5;
+  let posY = 0;
 
-  sel.each((d, i, n) => {
+  graphic.selectAll('.book').each((d, i, n) => {
     const $b = d3.select(n[i]);
-    const w = d.size.width;
-    const h = d.size.height;
-    $b.style('width', `${w}px`);
-    $b.style('height', `${h}px`);
-
-    const filterState = applyFilters(d)
-    d.previousState = filterState
-    if (filterState === 'enter') $b.style('left', '-500px')
-    const animateX = filterState === 'exit' ? '2000px' : `${centerX + posX}px`
+    const mini = $b.classed('book--mini');
+    const factor = mini ? miniRatio : 1;
+    const filterState = applyFilters(d);
+    d.previousState = filterState;
+    if (filterState === 'enter') $b.style('left', `-${offX}px`);
+    const animateX =
+      filterState === 'exit' ? `${offX}px` : `${centerX + posX[i] / factor}px`;
 
     $b.transition()
       .duration(5000)
       .ease(d3.easeCircleOut)
       .style('top', `${posY}px`)
       .style('left', animateX);
-    // TODO Only run once
-    $b.style('background', colorBooks(d.year));
-    $b.style('opacity', applyFilters)
+
+    if (filterState !== 'exit') posY += $b.node().offsetHeight;
+  });
+}
+
+function stack() {
+  const damp = 1 / NUM_BOOKS;
+  const scaleSin = 50;
+  const scaleOff = 10;
+
+  const posX = d3.range(NUM_BOOKS).map(i => {
     const dir = Math.random() < 0.5 ? -1 : 1;
     const offset = i === 0 ? 0 : Math.random() * dir * scaleOff;
-    // const acc = Math.random();
-    posX = Math.sin(i * damp * Math.PI * 2) * scaleSin + offset;
-    // posX = offset;
-    if (filterState !== 'exit') posY += h;
+    return Math.sin(i * damp * Math.PI * 2) * scaleSin + offset;
   });
+
+  stackBook({ graphic: $graphic, posX });
+  stackBook({ graphic: $miniGraphic, posX });
 }
 
 function sortData(slug) {
@@ -129,8 +142,8 @@ function handleSort() {
   // const sel = d3.select(this);
   // const slug = sel.attr('data-slug');
   // const $sorted = sortData(slug);
-  filters.keyword = !filters.keyword
-  const $sorted = $book
+  filters.keyword = !filters.keyword;
+  const $sorted = $book;
   stack($sorted);
 }
 
@@ -143,9 +156,26 @@ function setupUI() {
   setupSort();
 }
 
+function colorBg(d) {
+  d3.select(this).style('background-color', scaleColor(d.year));
+}
+
+function colorize() {
+  const data = $book.data();
+  // const yearRange = [d3.min(data, d => d.year), MAX_YEAR];
+  const yearRange = [1884, 2004];
+  scaleColor.domain(yearRange);
+
+  $book.each(colorBg);
+  $mini.each(colorBg);
+}
+
 function setup() {
+  resize();
   $book.each(bindData);
-  stack($book);
+  $mini.each(bindData);
+  colorize();
+  stack();
   makeMini();
   setupUI();
 }
