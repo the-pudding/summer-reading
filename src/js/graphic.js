@@ -8,6 +8,14 @@ const $sidebar = d3.select('#sidebar');
 
 function resize() {}
 
+function setSize() {
+  const baseW = 480;
+  const baseH = 72;
+  const w = Math.floor(baseW + Math.random() * baseW * 0.25);
+  const h = Math.floor(baseH + Math.random() * baseH * 0.33);
+  return { width: w, height: h };
+}
+
 function bindData() {
   const dataAttr = ['year', 'title', 'author', 'contributor'];
 
@@ -18,14 +26,6 @@ function bindData() {
   dataAttr.forEach(attr => (datum[attr] = $b.attr(`data-${attr}`)));
   datum.size = setSize();
   el.__data__ = cleanDatum(datum);
-}
-
-function setSize() {
-  const baseW = 480;
-  const baseH = 72;
-  const w = Math.floor(baseW + Math.random() * baseW * 0.25);
-  const h = Math.floor(baseH + Math.random() * baseH * 0.33);
-  return { width: w, height: h };
 }
 
 function colorBooks(d) {
@@ -40,7 +40,7 @@ function colorBooks(d) {
 
 function stack(sel) {
   const damp = 1 / $book.size();
-  const scaleSin = 1;
+  const scaleSin = 2;
   const scaleOff = 10;
   let posY = 0;
   let posX = 0;
@@ -63,10 +63,11 @@ function stack(sel) {
     $b.style('background', colorBooks(d.year));
     const dir = Math.random() < 0.5 ? -1 : 1;
     const offset = Math.random() * dir * scaleOff;
-    const acc = Math.random();
-    posX += Math.sin(i * damp * acc) * scaleSin + offset;
+    // const acc = Math.random();
+    posX += Math.sin(Math.PI / 2 + i * damp * Math.PI * 2) * scaleSin + offset;
     // posX = offset;
     posY += h;
+    console.log(i * damp);
   });
 }
 
