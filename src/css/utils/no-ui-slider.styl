@@ -286,14 +286,21 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 }
 
 .slider
+  font-family $national-narrow
 	&.noUi-target
 		box-shadow none
 		border none
 		background-color transparent
 	&.noUi-horizontal
 		cursor pointer
-		height 20px
+		height 14px
 		background transparent
+
+		.noUi-connect
+			opacity 0.67
+			top 1px
+			background $fg-lightest
+
 		.noUi-base
 			height 100%
 			&:after
@@ -305,14 +312,15 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 				top 50%
 				position absolute
 				border-radius 2px
+
 		.noUi-handle
 			outline none
-			width 20px
-			height 20px
+			width 24px
+			height 24px
 			left -@width * 0.5
-			top 0
+			top -6px
 			border 2px solid $fg
-			background-color $primary
+			background-color $secondary
 			border-radius 50%
 			box-shadow none
 			cursor pointer
@@ -320,4 +328,14 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 				display none
 			&:after
 				display none
-		
+
+		.noUi-tooltip
+			background transparent
+			set-type-size(small)
+			color $fg
+			// border 1px solid $fg-lightest
+			border none
+			bottom auto
+			top 0
+			padding 0.25em
+			transform translate(-50%, 24px)

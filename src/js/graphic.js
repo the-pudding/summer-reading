@@ -1,5 +1,6 @@
 /* global d3 */
 import EnterView from 'enter-view';
+import noUiSlider from 'nouislider';
 import cleanDatum from './clean-datum';
 import COLORS from './colors';
 
@@ -10,6 +11,9 @@ const filters = { keyword: false };
 const $miniGraphic = d3.select('#minimap');
 const $mini = $miniGraphic.selectAll('.book');
 const $miniTitle = $miniGraphic.select('.minimap__hed');
+const $slider = $sidebar.select('.slider')
+
+console.log($slider)
 
 const REM = 16;
 const MAX_YEAR = 2010;
@@ -21,6 +25,34 @@ const scaleColor = d3
   .nice();
 
 let miniRatio = 0;
+
+function handleSlide(value){
+  const [start, end] = value
+  console.log({value})
+}
+
+function setupSlider(){
+  const start = [MIN_YEAR, MAX_YEAR]
+  const slider = noUiSlider.create($slider.node(), {
+    start,
+    step: 4,
+    connect: true,
+    tooltips: [
+      {
+        to: value => value
+      },
+      {
+        to: value => value
+      }
+    ],
+    range: {
+      min: MIN_YEAR,
+      max: MAX_YEAR
+    }
+  })
+
+  slider.on('slide', handleSlide);
+}
 
 function setSizes() {
   const pad = REM * 2;
@@ -191,6 +223,7 @@ function setupUIEnter() {
 function setupUI() {
   setupSort();
   setupUIEnter();
+  setupSlider()
 }
 
 function colorBg(d) {
