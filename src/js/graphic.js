@@ -9,6 +9,7 @@ let $book = $graphic.selectAll('.book');
 const $sidebar = d3.select('#sidebar');
 
 const $miniGraphic = d3.select('#minimap');
+const $miniCont = $miniGraphic.select('.minimap__container')
 let $mini = $miniGraphic.selectAll('.book');
 const $miniTitle = $miniGraphic.select('.minimap__hed');
 const $miniCount = $miniTitle.select('span')
@@ -133,7 +134,7 @@ function stack() {
   });
 
   stackBook({ graphic: $graphic, posX });
-  stackBook({ graphic: $miniGraphic, posX });
+  stackBook({ graphic: $miniCont, posX });
 }
 
 function resize() {
