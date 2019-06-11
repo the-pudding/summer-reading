@@ -14,6 +14,7 @@ let $mini = $miniGraphic.selectAll('.book');
 const $miniTitle = $miniGraphic.select('.minimap__hed');
 const $miniCount = $miniTitle.select('span')
 const $slider = $sidebar.select('.slider')
+const $buttons = $sidebar.selectAll('.nav__sort-button');
 
 console.log($slider)
 
@@ -195,21 +196,32 @@ function handleSort() {
   const sel = d3.select(this);
   const slug = sel.attr('data-slug');
   const $sorted = sortData(slug);
+
+  $buttons.classed('is-active', false)
+  sel.classed('is-active', true)
   //filters.keyword = !filters.keyword;
   stack();
 }
 
 function setupSort() {
-  const buttons = $sidebar.selectAll('.nav__sort-button');
-  buttons.on('click', handleSort);
+  $buttons.on('click', handleSort);
 }
 
 function setupUIEnter() {
   EnterView({
     selector: '#graphic',
-    enter() {
+    enter: () => {
       $sidebar.classed('is-visible', true);
       $miniGraphic.classed('is-visible', true);
+      console.log("entered")
+    },
+    exit: () => {
+      $sidebar.classed('is-visible', false);
+      $miniGraphic.classed('is-visible', false)
+      console.log("exited")
+    },
+    progress: (el, progress) => {
+      console.log(progress)
     },
     offset: 0.5,
     once: true,

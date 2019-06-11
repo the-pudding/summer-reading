@@ -8,7 +8,7 @@
 	transform translateX(-100%)
 	transition transform 500ms ease-in-out
 	z-index set-index(top)
-	padding 0.5rem
+	padding 0.5rem 1rem
 	&.is-visible
 		transform translateX(0)
 		transition transform 500ms ease-in-out
@@ -27,3 +27,22 @@
 		margin-left 0.5rem
 		margin-top 1rem
 		margin-bottom 3rem
+	h4
+		font-family $national-narrow
+		set-type-size('medium')
+		text-transform uppercase
+	button
+		font-family $national-narrow
+		padding 0.25rem 0.5rem
+		border 1px solid $secondary
+		background lighten($bg, 2)
+		set-type-size('small')
+		margin 0.25rem 0.25rem 0 0
+		transition background 300ms ease-in-out
+		color $fg
+		&:hover
+			background rgba($secondary, 0.5)
+			transition background 300ms ease-in-out
+		&.is-active
+			background $secondary
+			color $bg
