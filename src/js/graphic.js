@@ -8,6 +8,7 @@ const $sidebar = d3.select('#sidebar');
 const filters = { keyword: false };
 const $miniGraphic = d3.select('#minimap');
 const $mini = $miniGraphic.selectAll('.book');
+const $miniTitle = $miniGraphic.select('.minimap__hed')
 
 const REM = 16;
 const MAX_YEAR = 2010;
@@ -24,6 +25,7 @@ function setSizes() {
   const pad = REM * 2;
   const ratio = 1 / 6;
   const pageW = window.innerWidth
+  const pageH = window.innerHeight
   const sidebarW = $sidebar.node().offsetWidth;
   const miniGraphicW = $miniGraphic.node().offsetWidth;
   const baseW = sidebarW + miniGraphicW - pad;
@@ -41,7 +43,9 @@ function setSizes() {
     d3.select(n[i]).style('height', `${height}px`);
   });
 
-  const miniH = Math.max(1, Math.floor(window.innerHeight / NUM_BOOKS));
+  const miniContainerH = pageH - $miniTitle.node().offsetHeight
+
+  const miniH = Math.max(1, Math.floor(miniContainerH / NUM_BOOKS));
   const maxBookW = d3.max(sizes, d => d.width);
   miniRatio = maxBookW / (miniGraphicW * 0.33);
 
