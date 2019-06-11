@@ -1,6 +1,7 @@
 /* global d3 */
 import cleanDatum from './clean-datum';
 import COLORS from './colors';
+import EnterView from 'enter-view'
 
 const $graphic = d3.select('#graphic');
 const $book = $graphic.selectAll('.book');
@@ -14,6 +15,18 @@ const REM = 16;
 const MAX_YEAR = 2010;
 const MIN_YEAR = 1880;
 const NUM_BOOKS = $book.size();
+
+function setupUIEnter(){
+	EnterView({
+		selector:'#graphic',
+	  enter: function(el){
+      $sidebar.node().classList.add('is-visible')
+			$miniGraphic.node().classList.add('is-visible')
+		},
+	  offset: 0.5,
+	  once: true
+	})
+}
 
 const scaleColor = d3
   .scaleQuantize()
@@ -168,6 +181,7 @@ function setupSort() {
 
 function setupUI() {
   setupSort();
+  setupUIEnter();
 }
 
 function colorBg(d) {
