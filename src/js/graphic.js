@@ -23,6 +23,7 @@ let miniRatio = 0;
 function setSizes() {
   const pad = REM * 2;
   const ratio = 1 / 6;
+  const pageW = window.innerWidth
   const sidebarW = $sidebar.node().offsetWidth;
   const miniGraphicW = $miniGraphic.node().offsetWidth;
   const baseW = sidebarW + miniGraphicW - pad;
