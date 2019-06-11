@@ -6,19 +6,19 @@
 	top 0
 	left 0
 	transform translateX(-100%)
-	transition transform 400ms ease-in-out
-	z-index 50
-	background rgba($bg-gray, 0.4)
-	box-shadow inset -4px 0px 8px rgba(0, 0, 0, 0.25)
+	transition transform 500ms ease-in-out
+	z-index set-index(top)
 	padding 0.5rem
 	&.is-visible
 		transform translateX(0)
-		transition transform 400ms ease-in-out
-	h3
-		set-type-size('medium')
-		font-family $national-narrow
+		transition transform 500ms ease-in-out
+	.sidebar__hed
+		set-type-size(small, false)
+		line-height 1
+		font-family $sans-display
 		color $tertiary
-		line-height 24px
 		text-align center
-		padding 0.5rem
-		margin-top 0
+		margin 0 auto
+		padding 1rem 0
+		font-weight 600
+		max-width 9rem

@@ -1,28 +1,33 @@
 #minimap
-  height 100vh
-  width 100%
-  max-width 10rem
-  position fixed
-  top 0
-  right 0
-  transform translateX(100%)
-  transition transform 400ms ease-in-out
-  z-index 50
-  background rgba($bg-gray, 0.4)
-  box-shadow inset 4px 0px 8px rgba(0, 0, 0, 0.25)
-  &.is-visible
-    transform translateX(0)
-    transition transform 400ms ease-in-out
+	height 100vh
+	width 100%
+	max-width 10rem
+	position fixed
+	top 0
+	right 0
+	transform translateX(100%)
+	transition transform 500ms ease-in-out
+	z-index set-index(top)
+	overflow hidden
+	&.is-visible
+		transform translateX(0)
+		transition transform 500ms ease-in-out
   .minimap__hed
-    set-type-size('medium')
-    font-family $national-narrow
-    color $tertiary
-    line-height 24px
-    text-align center
-    padding 0.5rem
-    margin-top 0
-  .minimap__container
-    position relative
-  .book
-    position absolute
-    transform translate(-50%, 0)
+		margin 0
+		set-type-size(small, false)
+		max-width 7rem
+		margin 0 auto
+		font-family $sans-display
+		font-weight 600
+		color $tertiary
+		text-align center
+		line-height 1
+		padding 1rem 0
+		span
+			color $primary
+		
+	.minimap__container
+		position relative
+	.book
+		position absolute
+		transform translate(-50%, 0)
