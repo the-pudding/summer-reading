@@ -5,11 +5,11 @@ import cleanDatum from './clean-datum';
 import COLORS from './colors';
 
 const $graphic = d3.select('#graphic');
-const $book = $graphic.selectAll('.book');
+let $book = $graphic.selectAll('.book');
 const $sidebar = d3.select('#sidebar');
 const filters = { keyword: false };
 const $miniGraphic = d3.select('#minimap');
-const $mini = $miniGraphic.selectAll('.book');
+let $mini = $miniGraphic.selectAll('.book');
 const $miniTitle = $miniGraphic.select('.minimap__hed');
 const $slider = $sidebar.select('.slider')
 
@@ -26,33 +26,7 @@ const scaleColor = d3
 
 let miniRatio = 0;
 
-function handleSlide(value){
-  const [start, end] = value
-  console.log({value})
-}
 
-function setupSlider(){
-  const start = [MIN_YEAR, MAX_YEAR]
-  const slider = noUiSlider.create($slider.node(), {
-    start,
-    step: 4,
-    connect: true,
-    tooltips: [
-      {
-        to: value => value
-      },
-      {
-        to: value => value
-      }
-    ],
-    range: {
-      min: MIN_YEAR,
-      max: MAX_YEAR
-    }
-  })
-
-  slider.on('slide', handleSlide);
-}
 
 function setSizes() {
   const pad = REM * 2;
@@ -177,11 +151,12 @@ function makeMini() {
   });
 }
 
+
 function sortData(slug) {
   let $sorted = null;
+  let $miniSorted = null;
 
-  if (slug === 'random') $sorted = $book.sort(() => Math.random() - 0.5);
-  else if (slug === 'author')
+  if (slug === 'author')
     $sorted = $book.sort((a, b) => {
       if (a.author && b.author) {
         const authorA = a.author[0].last;
@@ -191,16 +166,27 @@ function sortData(slug) {
     });
   else $sorted = $book.sort((a, b) => d3.ascending(a[slug], b[slug]));
 
-  return $sorted;
+  if (slug === 'author')
+    $miniSorted = $mini.sort((a, b) => {
+      if (a.author && b.author) {
+        const authorA = a.author[0].last;
+        const authorB = b.author[0].last;
+        return d3.ascending(authorA, authorB);
+      }
+    });
+  else $miniSorted = $mini.sort((a, b) => d3.ascending(a[slug], b[slug]));
+
+  $book = $sorted
+  $mini = $miniSorted
+  console.log({$book, $mini, $sorted})
 }
 
 function handleSort() {
-  // const sel = d3.select(this);
-  // const slug = sel.attr('data-slug');
-  // const $sorted = sortData(slug);
-  filters.keyword = !filters.keyword;
-  const $sorted = $book;
-  stack($sorted);
+  const sel = d3.select(this);
+  const slug = sel.attr('data-slug');
+  const $sorted = sortData(slug);
+  //filters.keyword = !filters.keyword;
+  stack();
 }
 
 function setupSort() {
@@ -218,6 +204,34 @@ function setupUIEnter() {
     offset: 0.5,
     once: true,
   });
+}
+
+function handleSlide(value){
+  const [start, end] = value
+  console.log({value})
+}
+
+function setupSlider(){
+  const start = [MIN_YEAR, MAX_YEAR]
+  const slider = noUiSlider.create($slider.node(), {
+    start,
+    step: 4,
+    connect: true,
+    tooltips: [
+      {
+        to: value => value
+      },
+      {
+        to: value => value
+      }
+    ],
+    range: {
+      min: MIN_YEAR,
+      max: MAX_YEAR
+    }
+  })
+
+  slider.on('slide', handleSlide);
 }
 
 function setupUI() {
