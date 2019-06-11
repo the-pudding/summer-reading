@@ -11,6 +11,7 @@ const $sidebar = d3.select('#sidebar');
 const $miniGraphic = d3.select('#minimap');
 let $mini = $miniGraphic.selectAll('.book');
 const $miniTitle = $miniGraphic.select('.minimap__hed');
+const $miniCount = $miniTitle.select('span')
 const $slider = $sidebar.select('.slider')
 
 console.log($slider)
@@ -68,14 +69,15 @@ function applyFilters(d) {
   let onScreen = null;
   if (d.previousState === 'exit') onScreen = false
   else onScreen = true
-  
+
   Object.keys(filters).forEach(k => {
     if (filters[k]) {
-      onScreen = d.year >= filters.years[0] && d.year <= +filters.years[1]
+      onScreen = d.year >= +filters.years[0] && d.year <= +filters.years[1]
     }
   });
   if (onScreen && d.previousState === 'exit') return 'enter';
   if (!onScreen && d.previousState === 'update') return 'exit';
+  if (!onScreen && d.previousState === 'exit') return 'exit';
   return 'update';
 }
 
@@ -114,6 +116,9 @@ function stackBook({ graphic, posX }) {
   });
 
   graphic.style('height', `${posY}px`);
+
+  const count = $book.filter(d => d.previousState === 'update' || d.previousState === 'enter')
+  $miniCount.text(count.size())
 }
 
 function stack() {
@@ -212,7 +217,7 @@ function setupUIEnter() {
 
 function handleSlide(value){
   const [start, end] = value
-  filters.years = [start, end]
+  filters.years = [+start, +end]
   stack()
 }
 
@@ -224,15 +229,15 @@ function setupSlider(){
     connect: true,
     tooltips: [
       {
-        to: value => value
+        to: value => +value
       },
       {
-        to: value => value
+        to: value => +value
       }
     ],
     range: {
-      min: MIN_YEAR,
-      max: MAX_YEAR
+      min: +MIN_YEAR,
+      max: +MAX_YEAR
     }
   })
 
