@@ -75,24 +75,24 @@
 	background $secondary
 	color $bg
 	text-align center
-	padding 0.5rem 2rem
-	margin 1rem auto 2rem
+	padding 0.25rem 2rem
+	margin 1rem auto 1rem
 	font-family $national-narrow
 	text-transform uppercase
 	&:before, &:after
 		content ''
 		position absolute
 		display block
-		bottom -1rem
-		border 1.5rem solid darken($secondary, 6)
+		top -0.85rem
+		border 2rem solid darken($secondary, 6)
 		z-index -1
 	&:before
-		left -2rem
-		border-right-width 1.5rem
+		left -3.35rem
+		border-right-width 1.25rem
 		border-left-color transparent
 	&:after
-		right -2rem
-		border-left-width 1.5rem
+		right -3.35rem
+		border-left-width 1.20rem
 		border-right-color transparent
 	.intro__hed-text
 		&:before, &:after
@@ -101,10 +101,11 @@
 			display block
 			border-style solid
 			border-color darken($secondary, 12) transparent transparent transparent
-			bottom -1rem
+			top -0.9rem
+			transform rotate(180deg)
 		&:before
 			left 0
-			border-width 1rem 0 0 1rem
+			border-width 0.75rem 0 0 0.75rem
 		&:after
 			right 0
-			border-width 1rem 1rem 0 0
+			border-width 0.75rem 0.75rem 0 0
