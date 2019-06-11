@@ -7,7 +7,7 @@ import COLORS from './colors';
 const $graphic = d3.select('#graphic');
 let $book = $graphic.selectAll('.book');
 const $sidebar = d3.select('#sidebar');
-const filters = { keyword: false };
+
 const $miniGraphic = d3.select('#minimap');
 let $mini = $miniGraphic.selectAll('.book');
 const $miniTitle = $miniGraphic.select('.minimap__hed');
@@ -25,6 +25,8 @@ const scaleColor = d3
   .nice();
 
 let miniRatio = 0;
+
+const filters = { keyword: false, years: [+MIN_YEAR, +MAX_YEAR] };
 
 
 
@@ -63,10 +65,13 @@ function setSizes() {
 }
 
 function applyFilters(d) {
-  let onScreen = true;
+  let onScreen = null;
+  if (d.previousState === 'exit') onScreen = false
+  else onScreen = true
+  
   Object.keys(filters).forEach(k => {
     if (filters[k]) {
-      onScreen = d.year > 1950;
+      onScreen = d.year >= filters.years[0] && d.year <= +filters.years[1]
     }
   });
   if (onScreen && d.previousState === 'exit') return 'enter';
@@ -178,7 +183,6 @@ function sortData(slug) {
 
   $book = $sorted
   $mini = $miniSorted
-  console.log({$book, $mini, $sorted})
 }
 
 function handleSort() {
@@ -208,7 +212,8 @@ function setupUIEnter() {
 
 function handleSlide(value){
   const [start, end] = value
-  console.log({value})
+  filters.years = [start, end]
+  stack()
 }
 
 function setupSlider(){
@@ -231,7 +236,7 @@ function setupSlider(){
     }
   })
 
-  slider.on('slide', handleSlide);
+  slider.on('change', handleSlide);
 }
 
 function setupUI() {
