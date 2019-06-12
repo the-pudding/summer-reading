@@ -84,7 +84,7 @@ function stackBook({ graphic, posX }) {
   const graphicW = graphic.node().offsetWidth;
   const centerX = graphicW / 2;
   const offX = graphicW * 1.5;
-	
+
 	const isMini = graphic.classed('minimap__graphic');
 	const factor = isMini ? miniRatio : 1;
 	let tally = 0;
@@ -114,7 +114,7 @@ function stackBook({ graphic, posX }) {
       .style('top', (d, i) => `${posY[i]}px`)
 			.style('left', (d, i) => `${centerX + posX[i] / factor}px`);
 
-    
+
 	};
 
   const exit = sel => {
@@ -180,9 +180,9 @@ function sortData(slug) {
 
   if (slug === 'author')
     $sorted = $book.sort((a, b) => {
-      if (a.author && b.author) {
-        const authorA = a.author[0].last;
-        const authorB = b.author[0].last;
+      if (a.authorClean && b.authorClean) {
+        const authorA = a.authorClean[0].last;
+        const authorB = b.authorClean[0].last;
         return d3.ascending(authorA, authorB);
       }
     });
@@ -190,9 +190,9 @@ function sortData(slug) {
 
   if (slug === 'author')
     $miniSorted = $bookM.sort((a, b) => {
-      if (a.author && b.author) {
-        const authorA = a.author[0].last;
-        const authorB = b.author[0].last;
+      if (a.authorClean && b.authorClean) {
+        const authorA = a.authorClean[0].last;
+        const authorB = b.authorClean[0].last;
         return d3.ascending(authorA, authorB);
       }
     });
