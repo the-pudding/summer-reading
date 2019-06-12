@@ -1,22 +1,21 @@
 /* global d3 */
+import Fitty from 'fitty';
 import EnterView from 'enter-view';
 import noUiSlider from 'nouislider';
 import cleanDatum from './clean-datum';
 import COLORS from './colors';
 
 const $graphic = d3.select('#graphic');
-let $book = $graphic.selectAll('.book');
 const $sidebar = d3.select('#sidebar');
-
 const $miniGraphic = d3.select('#minimap');
-const $miniCont = $miniGraphic.select('.minimap__container')
-let $mini = $miniGraphic.selectAll('.book');
+const $miniCont = $miniGraphic.select('.minimap__container');
 const $miniTitle = $miniGraphic.select('.minimap__hed');
-const $miniCount = $miniTitle.select('span')
-const $slider = $sidebar.select('.slider')
+const $miniCount = $miniTitle.select('span');
+const $slider = $sidebar.select('.slider');
 const $buttons = $sidebar.selectAll('.nav__sort-button');
 
-console.log($slider)
+let $book = $graphic.selectAll('.book');
+let $mini = $miniGraphic.selectAll('.book');
 
 const REM = 16;
 const MAX_YEAR = 2010;
@@ -27,11 +26,9 @@ const scaleColor = d3
   .range(COLORS)
   .nice();
 
-let miniRatio = 0;
-
 const filters = { keyword: false, years: [+MIN_YEAR, +MAX_YEAR] };
 
-
+let miniRatio = 0;
 
 function setSizes() {
   const pad = REM * 2;
@@ -69,12 +66,12 @@ function setSizes() {
 
 function applyFilters(d) {
   let onScreen = null;
-  if (d.previousState === 'exit') onScreen = false
-  else onScreen = true
+  if (d.previousState === 'exit') onScreen = false;
+  else onScreen = true;
 
   Object.keys(filters).forEach(k => {
     if (filters[k]) {
-      onScreen = d.year >= +filters.years[0] && d.year <= +filters.years[1]
+      onScreen = d.year >= +filters.years[0] && d.year <= +filters.years[1];
     }
   });
   if (onScreen && d.previousState === 'exit') return 'enter';
@@ -119,8 +116,10 @@ function stackBook({ graphic, posX }) {
 
   graphic.style('height', `${posY}px`);
 
-  const count = $book.filter(d => d.previousState === 'update' || d.previousState === 'enter')
-  $miniCount.text(count.size())
+  const count = $book.filter(
+    d => d.previousState === 'update' || d.previousState === 'enter'
+  );
+  $miniCount.text(count.size());
 }
 
 function stack() {
@@ -138,9 +137,22 @@ function stack() {
   stackBook({ graphic: $miniCont, posX });
 }
 
+function resizeFit() {
+  const h = [];
+  $book.each((d, i, n) => h.push(n[i].offsetHeight));
+  const maxSize = d3.min(h) / 2;
+  const minSize = 14;
+  Fitty('.book__title', {
+    minSize,
+    maxSize,
+    multiLine: false,
+  });
+}
+
 function resize() {
   setSizes();
   stack();
+  resizeFit();
 }
 
 function bindData() {
@@ -162,7 +174,6 @@ function makeMini() {
     $m.style('background', bigColor);
   });
 }
-
 
 function sortData(slug) {
   let $sorted = null;
@@ -188,8 +199,8 @@ function sortData(slug) {
     });
   else $miniSorted = $mini.sort((a, b) => d3.ascending(a[slug], b[slug]));
 
-  $book = $sorted
-  $mini = $miniSorted
+  $book = $sorted;
+  $mini = $miniSorted;
 }
 
 function handleSort() {
@@ -197,9 +208,9 @@ function handleSort() {
   const slug = sel.attr('data-slug');
   const $sorted = sortData(slug);
 
-  $buttons.classed('is-active', false)
-  sel.classed('is-active', true)
-  //filters.keyword = !filters.keyword;
+  $buttons.classed('is-active', false);
+  sel.classed('is-active', true);
+  // filters.keyword = !filters.keyword;
   stack();
 }
 
@@ -213,46 +224,46 @@ function setupUIEnter() {
     enter: () => {
       $sidebar.classed('is-visible', true);
       $miniGraphic.classed('is-visible', true);
-      console.log("entered")
+      console.log('entered');
     },
     exit: () => {
       $sidebar.classed('is-visible', false);
-      $miniGraphic.classed('is-visible', false)
-      console.log("exited")
+      $miniGraphic.classed('is-visible', false);
+      console.log('exited');
     },
     progress: (el, progress) => {
-      console.log(progress)
+      console.log(progress);
     },
     offset: 0.5,
     once: true,
   });
 }
 
-function handleSlide(value){
-  const [start, end] = value
-  filters.years = [+start, +end]
-  stack()
+function handleSlide(value) {
+  const [start, end] = value;
+  filters.years = [+start, +end];
+  stack();
 }
 
-function setupSlider(){
-  const start = [MIN_YEAR, MAX_YEAR]
+function setupSlider() {
+  const start = [MIN_YEAR, MAX_YEAR];
   const slider = noUiSlider.create($slider.node(), {
     start,
     step: 4,
     connect: true,
     tooltips: [
       {
-        to: value => +value
+        to: value => +value,
       },
       {
-        to: value => +value
-      }
+        to: value => +value,
+      },
     ],
     range: {
       min: +MIN_YEAR,
-      max: +MAX_YEAR
-    }
-  })
+      max: +MAX_YEAR,
+    },
+  });
 
   slider.on('change', handleSlide);
 }
@@ -260,7 +271,7 @@ function setupSlider(){
 function setupUI() {
   setupSort();
   setupUIEnter();
-  setupSlider()
+  setupSlider();
 }
 
 function colorBg(d) {
@@ -276,7 +287,7 @@ function colorize() {
   $mini.each(colorBg);
 }
 
-function setup() {
+function init() {
   $book.each(bindData);
   $mini.each(bindData);
   colorize();
@@ -284,10 +295,6 @@ function setup() {
   makeMini();
   setupUI();
   resize();
-}
-
-async function init() {
-  setup();
 }
 
 export default { init, resize };
