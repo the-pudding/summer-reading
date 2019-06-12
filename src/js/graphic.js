@@ -278,7 +278,6 @@ function setupFigures() {
   numBooks = bookData.length;
   bookData.sort((a, b) => d3.ascending(a.TitleClean, b.TitleClean));
   const randomFont = bookFonts[Math.floor(Math.random() * bookFonts.length)]
-  console.log(randomFont)
 
   $book = $graphic
     .selectAll('.book')
@@ -289,10 +288,12 @@ function setupFigures() {
 
   $bookM = $miniGraphic
     .selectAll('.book')
-    //.data(bookData, d => d.Title)
-    // .join('div')
-    // .attr('class', 'book book--mini')
-    // .style('background-color', d => scaleColor(d.PubYear));
+    .data(bookData, d => {
+    //  console.log(d)
+      return d.Title})
+    .join('div')
+    .attr('class', 'book book--mini')
+    .style('background-color', d => scaleColor(d.PubYear));
 
   const $title = $book
     .append('h4')
