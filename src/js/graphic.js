@@ -264,8 +264,14 @@ function generateRandomFont(){
   return bookFonts[Math.floor(Math.random() * bookFonts.length)]
 }
 
-function openTooltip(){
+function openTooltip(d){
   $tooltip.classed('is-active', true)
+  console.log({d})
+
+  const img = $tooltip.selectAll('img').attr('src', d.ImageUrl)
+  console.log(d.ImageUrl)
+  $tooltip.select('.tooltip__meta-title').text(d.TitleClean)
+  $tooltip.select('.tooltip__meta-author').text(d.AuthorClean[0].first.concat(` ${d.AuthorClean[0].last}`))
 }
 
 function closeTooltip(){
