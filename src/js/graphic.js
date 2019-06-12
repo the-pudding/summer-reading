@@ -84,7 +84,7 @@ function stackBook({ graphic, posX }) {
   const graphicW = graphic.node().offsetWidth;
   const centerX = graphicW / 2;
   const offX = graphicW * 1.5;
-	
+
 	const isMini = graphic.classed('minimap__graphic');
 	const factor = isMini ? miniRatio : 1;
 	let tally = 0;
@@ -93,12 +93,18 @@ function stackBook({ graphic, posX }) {
 
 
   const update = sel => {
+    // console.log({sel})
+    // sel.sort((a, b) => d3.ascending(a.PubYear, b.PubYear))
+    // console.log({sel})
 		const posY = [];
+
 		sel.each((d, i, n) => {
+      if (i === 0) console.log(d)
 			posY.push(tally);
 			tally += n[i].offsetHeight;
 		});
 
+    console.log(posY)
 		sel.style('left', (d, i, n) => {
 			const $b = d3.select(n[i]);
 			const isEnter = $b.attr('data-enter');
@@ -114,7 +120,7 @@ function stackBook({ graphic, posX }) {
       .style('top', (d, i) => `${posY[i]}px`)
 			.style('left', (d, i) => `${centerX + posX[i] / factor}px`);
 
-    
+
 	};
 
   const exit = sel => {
@@ -178,28 +184,29 @@ function sortData(slug) {
   let $sorted = null;
   let $miniSorted = null;
 
-  if (slug === 'author')
+  if (slug === 'Author')
     $sorted = $book.sort((a, b) => {
-      if (a.author && b.author) {
-        const authorA = a.author[0].last;
-        const authorB = b.author[0].last;
+      if (a.AuthorClean && b.AuthorClean) {
+        const authorA = a.AuthorClean[0].last;
+        const authorB = b.AuthorClean[0].last;
         return d3.ascending(authorA, authorB);
       }
     });
   else $sorted = $book.sort((a, b) => d3.ascending(a[slug], b[slug]));
 
-  if (slug === 'author')
+  if (slug === 'Author')
     $miniSorted = $bookM.sort((a, b) => {
-      if (a.author && b.author) {
-        const authorA = a.author[0].last;
-        const authorB = b.author[0].last;
+      if (a.AuthorClean && b.AuthorClean) {
+        const authorA = a.AuthorClean[0].last;
+        const authorB = b.AuthorClean[0].last;
         return d3.ascending(authorA, authorB);
       }
     });
   else $miniSorted = $bookM.sort((a, b) => d3.ascending(a[slug], b[slug]));
-
+  //
   $book = $sorted;
   $bookM = $miniSorted;
+  console.log({$sorted, $book})
 }
 
 function handleSort() {
@@ -291,7 +298,7 @@ function setupFigures() {
   $book
     .append('h4')
     .attr('class', 'book__title')
-    .text(d => d.TitleClean);
+    .text(d => d.TitleClean ? d.TitleClean : d.Title);
 }
 
 async function init() {

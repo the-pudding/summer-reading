@@ -10,7 +10,7 @@
 	"dependencies": {
 		"cli-error-notifier": "2.1.0",
 		"enter-view": "^2.0.0",
-		"fitty": "2.2.6",
+		"fitty": "^2.2.6",
 		"lodash.debounce": "4.0.8",
 		"nouislider": "13.1.5",
 		"rimraf": "2.6.3",
