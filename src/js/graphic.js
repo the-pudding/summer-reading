@@ -33,6 +33,8 @@ let rawData = [];
 let miniRatio = 0;
 let numBooks = 0;
 
+const bookFonts = ['Vast Shadow', 'Righteous', 'Unica One']
+
 function setSizes() {
   const pad = REM * 2;
   const ratio = 1 / 6;
@@ -93,18 +95,12 @@ function stackBook({ graphic, posX }) {
 
 
   const update = sel => {
-    // console.log({sel})
-    // sel.sort((a, b) => d3.ascending(a.PubYear, b.PubYear))
-    // console.log({sel})
 		const posY = [];
-
 		sel.each((d, i, n) => {
-      if (i === 0) console.log(d)
 			posY.push(tally);
 			tally += n[i].offsetHeight;
 		});
 
-    console.log(posY)
 		sel.style('left', (d, i, n) => {
 			const $b = d3.select(n[i]);
 			const isEnter = $b.attr('data-enter');
@@ -282,6 +278,7 @@ function setupFigures() {
   numBooks = bookData.length;
   bookData.sort((a, b) => d3.ascending(a.TitleClean, b.TitleClean));
   const randomFont = bookFonts[Math.floor(Math.random() * bookFonts.length)]
+  console.log(randomFont)
 
   $book = $graphic
     .selectAll('.book')
@@ -292,18 +289,21 @@ function setupFigures() {
 
   $bookM = $miniGraphic
     .selectAll('.book')
-    .data(bookData, d => d.Title)
-    .join('div')
-    .attr('class', 'book book--mini')
-    .style('background-color', d => scaleColor(d.PubYear));
+    //.data(bookData, d => d.Title)
+    // .join('div')
+    // .attr('class', 'book book--mini')
+    // .style('background-color', d => scaleColor(d.PubYear));
 
-  $book
+  const $title = $book
     .append('h4')
     .attr('class', 'book__title')
-    .text(d => d.TitleClean ? d.TitleClean : d.Title)
-    .style('font-family', randomFont);
+    .text(d => d.TitleClean)
+    //.style('font-family', bookFonts[Math.floor(Math.random() * bookFonts.length)])
 
-
+  $title.each(function(d){
+    const el = d3.select(this)
+    el.style('font-family', bookFonts[Math.floor(Math.random() * bookFonts.length)])})
+    //.style('font-family', randomFont)
 }
 
 async function init() {
