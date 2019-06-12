@@ -13,6 +13,8 @@ const $miniTitle = $mini.select('.minimap__hed');
 const $miniCount = $miniTitle.select('span');
 const $slider = $sidebar.select('.slider');
 const $buttons = $sidebar.selectAll('.nav__sort-button');
+const $tooltip = d3.select('#tooltip');
+const $tooltipClose = $tooltip.select('.tooltip__close')
 
 let $book = null;
 let $bookM = null;
@@ -262,6 +264,14 @@ function generateRandomFont(){
   return bookFonts[Math.floor(Math.random() * bookFonts.length)]
 }
 
+function openTooltip(){
+  $tooltip.classed('is-active', true)
+}
+
+function closeTooltip(){
+  $tooltip.classed('is-active', false)
+}
+
 function setupFigures() {
   const yearRange = [MIN_YEAR, MAX_YEAR];
   scaleColor.domain(yearRange);
@@ -289,6 +299,9 @@ function setupFigures() {
     .attr('class', 'book__title')
     .text(d => d.TitleClean)
     .style('font-family', generateRandomFont)
+
+  $book.on('click', openTooltip)
+  $tooltipClose.on('click', closeTooltip)
 }
 
 function init() {

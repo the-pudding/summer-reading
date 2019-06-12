@@ -1,0 +1,45 @@
+#tooltip
+  background rgba($bg, 0.5)
+  z-index 200
+  width 100%
+  height 100%
+  display flex
+  justify-content center
+  align-items center
+  position fixed
+  top 0
+  left 0
+  opacity 0
+  transition opacity 300ms ease-in-out
+  pointer-events none
+  &.is-active
+    opacity 1
+    transition opacity 300ms ease-in-out
+
+    .tooltip__close
+      pointer-events: all
+      cursor pointer
+  .tooltip__contents
+    width 670px
+    height 450px
+    background: $bg
+    border 3px solid $secondary
+    border-radius 10px
+    padding 1rem 2rem
+    position relative
+
+    .tooltip__close
+      height 30px
+      width 30px
+      background-color: $secondary
+      //border: 3px solid $secondary
+      align-self flex-end
+      transform translate(5px, -275px)
+      border-radius 50%
+      position relative
+      display flex
+      align-items: center;
+      justify-content: center
+      transition 300ms ease
+      +mq('bp-3')
+        transform translate(615px, -30px)
