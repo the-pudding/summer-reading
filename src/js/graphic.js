@@ -181,14 +181,13 @@ function sortData(slug) {
   let $sorted = null;
   let $miniSorted = null;
 
-  if (slug === 'Author')
+  if (slug === 'AuthorClean')
     rawData.sort((a, b) => {
 
-      if (a.AuthorClean && b.AuthorClean) {
         const authorA = a.AuthorClean[0].last;
         const authorB = b.AuthorClean[0].last;
         return d3.ascending(authorA, authorB);
-      }
+
     });
   else rawData.sort((a, b) => d3.ascending(a[slug], b[slug]));
 }
