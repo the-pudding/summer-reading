@@ -26,7 +26,7 @@ const scaleColor = d3
   .range(COLORS)
   .nice();
 
-const filters = { keyword: false, years: [+MIN_YEAR, +MAX_YEAR] };
+const filters = { keyword: false, years: [MIN_YEAR, MAX_YEAR - 5] };
 
 let miniRatio = 0;
 
@@ -246,10 +246,10 @@ function handleSlide(value) {
 }
 
 function setupSlider() {
-  const start = [MIN_YEAR, MAX_YEAR];
+  const start = [MIN_YEAR, MAX_YEAR - 5];
   const slider = noUiSlider.create($slider.node(), {
     start,
-    step: 4,
+    step: 5,
     connect: true,
     tooltips: [
       {
@@ -260,8 +260,8 @@ function setupSlider() {
       },
     ],
     range: {
-      min: +MIN_YEAR,
-      max: +MAX_YEAR,
+      min: MIN_YEAR,
+      max: MAX_YEAR,
     },
   });
 
