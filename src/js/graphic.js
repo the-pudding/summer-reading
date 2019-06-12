@@ -31,7 +31,7 @@ let miniRatio = 0;
 
 const filters = { keyword: false, years: [+MIN_YEAR, +MAX_YEAR] };
 
-
+const bookFonts = ['Vast Shadow', 'National 2 Narrow Web', 'Righteous', 'Unica One']
 
 function setSizes() {
   const pad = REM * 2;
@@ -267,6 +267,12 @@ function colorBg(d) {
   d3.select(this).style('background-color', scaleColor(d.year));
 }
 
+function setFont(d){
+  const random = bookFonts[Math.floor(Math.random() * bookFonts.length)]
+  console.log({random})
+  d3.select(this).style('font-family', random)
+}
+
 function colorize() {
   const yearRange = [MIN_YEAR, MAX_YEAR];
   scaleColor.domain(yearRange);
@@ -274,6 +280,9 @@ function colorize() {
   // console.log(scaleColor.thresholds());
   $book.each(colorBg);
   $mini.each(colorBg);
+
+  // set fonts
+  $book.each(setFont)
 }
 
 function setup() {
