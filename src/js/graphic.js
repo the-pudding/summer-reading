@@ -191,20 +191,6 @@ function sortData(slug) {
       }
     });
   else rawData.sort((a, b) => d3.ascending(a[slug], b[slug]));
-
-  // if (slug === 'Author')
-  //   $miniSorted = $bookM.sort((a, b) => {
-  //     if (a.AuthorClean && b.AuthorClean) {
-  //       const authorA = a.AuthorClean[0].last;
-  //       const authorB = b.AuthorClean[0].last;
-  //       return d3.ascending(authorA, authorB);
-  //     }
-  //   });
-  // else $miniSorted = $bookM.sort((a, b) => d3.ascending(a[slug], b[slug]));
-  //
-  // $book = $sorted;
-  // $bookM = $miniSorted;
-  // console.log({$sorted, $book})
 }
 
 function handleSort() {
@@ -273,12 +259,15 @@ function setupUI() {
   setupSlider();
 }
 
+function generateRandomFont(){
+  return bookFonts[Math.floor(Math.random() * bookFonts.length)]
+}
+
 function setupFigures() {
   const yearRange = [MIN_YEAR, MAX_YEAR];
   scaleColor.domain(yearRange);
   numBooks = bookData.length;
   bookData.sort((a, b) => d3.ascending(a.TitleClean, b.TitleClean));
-  const randomFont = bookFonts[Math.floor(Math.random() * bookFonts.length)]
 
   $book = $graphic
     .selectAll('.book')
@@ -300,12 +289,7 @@ function setupFigures() {
     .append('h4')
     .attr('class', 'book__title')
     .text(d => d.TitleClean)
-    //.style('font-family', bookFonts[Math.floor(Math.random() * bookFonts.length)])
-
-  $title.each(function(d){
-    const el = d3.select(this)
-    el.style('font-family', bookFonts[Math.floor(Math.random() * bookFonts.length)])})
-    //.style('font-family', randomFont)
+    .style('font-family', generateRandomFont)
 }
 
 async function init() {
