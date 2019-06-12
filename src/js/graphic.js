@@ -84,42 +84,64 @@ function stackBook({ graphic, posX }) {
   const graphicW = graphic.node().offsetWidth;
   const centerX = graphicW / 2;
   const offX = graphicW * 1.5;
-  const posY = 0;
+	
+	const isMini = graphic.classed('minimap__graphic');
+	const factor = isMini ? miniRatio : 1;
+	let tally = 0;
 
-  // graphic.selectAll('.book').each((d, i, n) => {
-  //   const $b = d3.select(n[i]);
-  //   const mini = $b.classed('book--mini');
-  //   const factor = mini ? miniRatio : 1;
-  //   const state = applyFilters(d);
-  //   d.previousState = state;
+  const enter = () => {};
 
-  //   const updateX = `${centerX + posX[i] / factor}px`;
-  //   const enterX = `${-offX}px`;
-  //   const exitX = `${offX}px`;
 
-  //   if (state === 'enter') {
-  //     $b.style('left', enterX).style('top', `${posY}px`);
-  //   }
+  const update = sel => {
+		const posY = [];
+		sel.each((d, i, n) => {
+			posY.push(tally);
+			tally += n[i].offsetHeight;
+		});
 
-  //   const animateX = state === 'exit' ? exitX : updateX;
-  //   const animateY = state === 'exit' ? $b.style('top') : `${posY}px`;
+		sel.style('left', (d, i, n) => {
+			const $b = d3.select(n[i]);
+			const isEnter = $b.attr('data-enter');
+			return isEnter ? `${-offX}px` : $b.style('left');
+		});
 
-  //   $b.transition()
-  //     .duration(500)
-  //     .delay((posY * factor) / 10)
-  //     .ease(d3.easeCubicInOut)
-  //     .style('top', animateY)
-  //     .style('left', animateX);
+    sel
+			.attr('data-enter', null)
+			.transition()
+      .duration(500)
+      .delay((d, i) => (i * factor) / 10)
+      .ease(d3.easeCubicInOut)
+      .style('top', (d, i) => `${posY[i]}px`)
+			.style('left', (d, i) => `${centerX + posX[i] / factor}px`);
 
-  //   if (state !== 'exit') posY += $b.node().offsetHeight;
+    
+	};
+
+  const exit = sel => {
+		sel.transition()
+			.duration(500)
+			.delay((d, i) => (i * factor) / 10)
+			.ease(d3.easeCubicInOut)
+			.attr('data-enter', 'true')
+			.style('left', `${offX}px`);
+  };
+
+	// console.log(bookData.length);
+  graphic
+    .selectAll('.book')
+    .data(bookData, d => d.Title)
+    .join(enter, update, exit);
+
   // });
 
-  // graphic.style('height', `${posY}px`);
+  graphic.style('height', `${tally}px`);
 
   $miniCount.text(bookData.length);
 }
 
 function stack() {
+	bookData = rawData.filter(applyFilters);
+
   const damp = 1 / numBooks;
   const scaleSin = $graphic.node().offsetWidth * 0.05;
   const scaleOff = 10;
@@ -129,8 +151,6 @@ function stack() {
     const offset = i === 0 ? 0 : Math.random() * dir * scaleOff;
     return Math.sin(i * damp * Math.PI * 2) * scaleSin + offset;
   });
-
-  bookData = rawData.filter(applyFilters);
 
   stackBook({ graphic: $graphic, posX });
   stackBook({ graphic: $miniGraphic, posX });
@@ -256,14 +276,14 @@ function setupFigures() {
 
   $book = $graphic
     .selectAll('.book')
-    .data(bookData)
+    .data(bookData, d => d.Title)
     .join('div')
     .attr('class', 'book')
     .style('background-color', d => scaleColor(d.PubYear));
 
   $bookM = $miniGraphic
     .selectAll('.book')
-    .data(bookData)
+    .data(bookData, d => d.Title)
     .join('div')
     .attr('class', 'book book--mini')
     .style('background-color', d => scaleColor(d.PubYear));
