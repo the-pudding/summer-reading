@@ -82,7 +82,7 @@ function applyFilters(d) {
   return onScreen;
 }
 
-function stackBook({ graphic, posX }) {
+function stackBook({ graphic, book, posX }) {
   const graphicW = graphic.node().offsetWidth;
   const centerX = graphicW / 2;
   const offX = graphicW * 1.5;
@@ -95,6 +95,7 @@ function stackBook({ graphic, posX }) {
 
 
   const update = sel => {
+
 		const posY = [];
 		sel.each((d, i, n) => {
 			posY.push(tally);
@@ -129,8 +130,8 @@ function stackBook({ graphic, posX }) {
   };
 
 	// console.log(bookData.length);
-  graphic
-    .selectAll('.book')
+
+  book
     .data(bookData, d => d.Title)
     .join(enter, update, exit);
 
@@ -154,8 +155,8 @@ function stack() {
     return Math.sin(i * damp * Math.PI * 2) * scaleSin + offset;
   });
 
-  stackBook({ graphic: $graphic, posX });
-  stackBook({ graphic: $miniGraphic, posX });
+  stackBook({ graphic: $graphic, book: $book, posX });
+  stackBook({ graphic: $miniGraphic, book: $bookM, posX });
 }
 
 function resizeFit() {
@@ -181,7 +182,7 @@ function sortData(slug) {
   let $miniSorted = null;
 
   if (slug === 'Author')
-    $sorted = $book.sort((a, b) => {
+    rawData.sort((a, b) => {
 
       if (a.AuthorClean && b.AuthorClean) {
         const authorA = a.AuthorClean[0].last;
@@ -189,27 +190,27 @@ function sortData(slug) {
         return d3.ascending(authorA, authorB);
       }
     });
-  else $sorted = $book.sort((a, b) => d3.ascending(a[slug], b[slug]));
+  else rawData.sort((a, b) => d3.ascending(a[slug], b[slug]));
 
-  if (slug === 'Author')
-    $miniSorted = $bookM.sort((a, b) => {
-      if (a.AuthorClean && b.AuthorClean) {
-        const authorA = a.AuthorClean[0].last;
-        const authorB = b.AuthorClean[0].last;
-        return d3.ascending(authorA, authorB);
-      }
-    });
-  else $miniSorted = $bookM.sort((a, b) => d3.ascending(a[slug], b[slug]));
+  // if (slug === 'Author')
+  //   $miniSorted = $bookM.sort((a, b) => {
+  //     if (a.AuthorClean && b.AuthorClean) {
+  //       const authorA = a.AuthorClean[0].last;
+  //       const authorB = b.AuthorClean[0].last;
+  //       return d3.ascending(authorA, authorB);
+  //     }
+  //   });
+  // else $miniSorted = $bookM.sort((a, b) => d3.ascending(a[slug], b[slug]));
   //
-  $book = $sorted;
-  $bookM = $miniSorted;
-  console.log({$sorted, $book})
+  // $book = $sorted;
+  // $bookM = $miniSorted;
+  // console.log({$sorted, $book})
 }
 
 function handleSort() {
   const sel = d3.select(this);
   const slug = sel.attr('data-slug');
-  const $sorted = sortData(slug);
+  sortData(slug);
 
   $buttons.classed('is-active', false);
   sel.classed('is-active', true);
