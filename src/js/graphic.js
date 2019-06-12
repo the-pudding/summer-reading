@@ -93,12 +93,18 @@ function stackBook({ graphic, posX }) {
 
 
   const update = sel => {
+    // console.log({sel})
+    // sel.sort((a, b) => d3.ascending(a.PubYear, b.PubYear))
+    // console.log({sel})
 		const posY = [];
+
 		sel.each((d, i, n) => {
+      if (i === 0) console.log(d)
 			posY.push(tally);
 			tally += n[i].offsetHeight;
 		});
 
+    console.log(posY)
 		sel.style('left', (d, i, n) => {
 			const $b = d3.select(n[i]);
 			const isEnter = $b.attr('data-enter');
@@ -178,28 +184,30 @@ function sortData(slug) {
   let $sorted = null;
   let $miniSorted = null;
 
-  if (slug === 'author')
+  if (slug === 'Author')
     $sorted = $book.sort((a, b) => {
-      if (a.authorClean && b.authorClean) {
-        const authorA = a.authorClean[0].last;
-        const authorB = b.authorClean[0].last;
+
+      if (a.AuthorClean && b.AuthorClean) {
+        const authorA = a.AuthorClean[0].last;
+        const authorB = b.AuthorClean[0].last;
         return d3.ascending(authorA, authorB);
       }
     });
   else $sorted = $book.sort((a, b) => d3.ascending(a[slug], b[slug]));
 
-  if (slug === 'author')
+  if (slug === 'Author')
     $miniSorted = $bookM.sort((a, b) => {
-      if (a.authorClean && b.authorClean) {
-        const authorA = a.authorClean[0].last;
-        const authorB = b.authorClean[0].last;
+      if (a.AuthorClean && b.AuthorClean) {
+        const authorA = a.AuthorClean[0].last;
+        const authorB = b.AuthorClean[0].last;
         return d3.ascending(authorA, authorB);
       }
     });
   else $miniSorted = $bookM.sort((a, b) => d3.ascending(a[slug], b[slug]));
-
+  //
   $book = $sorted;
   $bookM = $miniSorted;
+  console.log({$sorted, $book})
 }
 
 function handleSort() {
@@ -273,6 +281,7 @@ function setupFigures() {
   scaleColor.domain(yearRange);
   numBooks = bookData.length;
   bookData.sort((a, b) => d3.ascending(a.TitleClean, b.TitleClean));
+  const randomFont = bookFonts[Math.floor(Math.random() * bookFonts.length)]
 
   $book = $graphic
     .selectAll('.book')
@@ -291,7 +300,10 @@ function setupFigures() {
   $book
     .append('h4')
     .attr('class', 'book__title')
-    .text(d => d.TitleClean);
+    .text(d => d.TitleClean ? d.TitleClean : d.Title)
+    .style('font-family', randomFont);
+
+
 }
 
 async function init() {
