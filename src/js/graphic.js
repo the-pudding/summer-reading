@@ -269,9 +269,10 @@ function openTooltip(d){
   console.log({d})
 
   const img = $tooltip.selectAll('img').attr('src', d.ImageUrl)
-  console.log(d.ImageUrl)
   $tooltip.select('.tooltip__meta-title').text(d.TitleClean)
   $tooltip.select('.tooltip__meta-author').text(d.AuthorClean[0].first.concat(` ${d.AuthorClean[0].last}`))
+  $tooltip.select('.tooltip__meta-desc').text(d.GoodreadsDes)
+  $tooltip.select('.tooltip__gr').attr('href', d.GoodreadsLink)
 }
 
 function closeTooltip(){
