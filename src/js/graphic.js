@@ -280,6 +280,7 @@ function setupFigures() {
   scaleColor.domain(yearRange);
   numBooks = bookData.length;
   bookData.sort((a, b) => d3.ascending(a.TitleClean, b.TitleClean));
+  const randomFont = bookFonts[Math.floor(Math.random() * bookFonts.length)]
 
   $book = $graphic
     .selectAll('.book')
@@ -299,6 +300,9 @@ function setupFigures() {
     .append('h4')
     .attr('class', 'book__title')
     .text(d => d.TitleClean ? d.TitleClean : d.Title);
+    .style('font-family', randomFont)
+
+
 }
 
 async function init() {
