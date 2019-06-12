@@ -6,10 +6,28 @@
 	}).catch(console.error)
 */
 
+function createFullName(str) {
+  const [lastRaw, first] = str
+    .trim()
+    .split(',')
+    .map(v => v.trim());
+
+  const p = lastRaw.split(')').map(v => v.trim().replace('(', ''));
+  const last = p.length === 1 ? p[0] : p[1];
+  const role = p.length === 2 ? p[0] : null;
+  return { first, last, role };
+}
+
+function parseName(str) {
+  if (!str || !str.length) return null;
+  return str.split('|').map(createFullName);
+}
+
 function clean(data) {
   return data.map(d => ({
     ...d,
-    AuthorClean: d.AuthorClean.split('|'),
+    AuthorClean: parseName(d.AuthorClean),
+    AuthorMore: parseName(d.AuthorMore),
     GoodreadsRating: +d.GoodreadsRating,
     GoodreadsReviews: +d.GoodreadsReviews,
     PubYear: +d.PubYear,

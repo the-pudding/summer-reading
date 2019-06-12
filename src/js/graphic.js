@@ -1,37 +1,37 @@
 /* global d3 */
+import Fitty from 'fitty';
 import EnterView from 'enter-view';
 import noUiSlider from 'nouislider';
-import cleanDatum from './clean-datum';
 import COLORS from './colors';
+import loadData from './load-data';
 
 const $graphic = d3.select('#graphic');
-let $book = $graphic.selectAll('.book');
 const $sidebar = d3.select('#sidebar');
-
-const $miniGraphic = d3.select('#minimap');
-const $miniCont = $miniGraphic.select('.minimap__container')
-let $mini = $miniGraphic.selectAll('.book');
-const $miniTitle = $miniGraphic.select('.minimap__hed');
-const $miniCount = $miniTitle.select('span')
-const $slider = $sidebar.select('.slider')
+const $mini = d3.select('#minimap');
+const $miniGraphic = $mini.select('.minimap__graphic');
+const $miniTitle = $mini.select('.minimap__hed');
+const $miniCount = $miniTitle.select('span');
+const $slider = $sidebar.select('.slider');
 const $buttons = $sidebar.selectAll('.nav__sort-button');
 
-console.log($slider)
+let $book = null;
+let $bookM = null;
 
 const REM = 16;
 const MAX_YEAR = 2010;
 const MIN_YEAR = 1880;
-const NUM_BOOKS = $book.size();
+
 const scaleColor = d3
   .scaleQuantize()
   .range(COLORS)
   .nice();
 
+const filters = { keyword: false, years: [MIN_YEAR, MAX_YEAR - 5] };
+
+let bookData = [];
+let rawData = [];
 let miniRatio = 0;
-
-const filters = { keyword: false, years: [+MIN_YEAR, +MAX_YEAR] };
-
-const bookFonts = ['Vast Shadow', 'National 2 Narrow Web', 'Righteous', 'Unica One']
+let numBooks = 0;
 
 function setSizes() {
   const pad = REM * 2;
@@ -42,7 +42,7 @@ function setSizes() {
   const baseW = sidebarW + miniGraphicW - pad;
   const baseH = baseW * ratio;
 
-  const sizes = d3.range(NUM_BOOKS).map(() => {
+  const sizes = d3.range(numBooks).map(() => {
     const w = Math.floor(baseW + Math.random() * baseW * 0.25);
     const h = Math.floor(baseH + Math.random() * baseH * 0.33);
     return { width: w, height: h };
@@ -56,11 +56,11 @@ function setSizes() {
 
   const miniContainerH = pageH - $miniTitle.node().offsetHeight;
 
-  const miniH = Math.max(1, Math.floor(miniContainerH / NUM_BOOKS));
+  const miniH = Math.max(1, Math.floor(miniContainerH / numBooks));
   const maxBookW = d3.max(sizes, d => d.width);
   miniRatio = maxBookW / (miniGraphicW * 0.2);
 
-  $mini.each((d, i, n) => {
+  $bookM.each((d, i, n) => {
     const { width } = sizes[i];
     d3.select(n[i]).style('width', `${Math.floor(width / miniRatio)}px`);
     d3.select(n[i]).style('height', `${miniH}px`);
@@ -68,128 +68,145 @@ function setSizes() {
 }
 
 function applyFilters(d) {
-  let onScreen = null;
-  if (d.previousState === 'exit') onScreen = false
-  else onScreen = true
+  let onScreen = true;
 
   Object.keys(filters).forEach(k => {
     if (filters[k]) {
-      onScreen = d.year >= +filters.years[0] && d.year <= +filters.years[1]
+      onScreen =
+        d.PubYear >= +filters.years[0] && d.PubYear <= +filters.years[1];
     }
   });
-  if (onScreen && d.previousState === 'exit') return 'enter';
-  if (!onScreen && d.previousState === 'update') return 'exit';
-  if (!onScreen && d.previousState === 'exit') return 'exit';
-  return 'update';
+
+  return onScreen;
 }
 
 function stackBook({ graphic, posX }) {
   const graphicW = graphic.node().offsetWidth;
   const centerX = graphicW / 2;
   const offX = graphicW * 1.5;
-  let posY = 0;
 
-  graphic.selectAll('.book').each((d, i, n) => {
-    const $b = d3.select(n[i]);
-    const mini = $b.classed('book--mini');
-    const factor = mini ? miniRatio : 1;
-    const state = applyFilters(d);
-    d.previousState = state;
+	const isMini = graphic.classed('minimap__graphic');
+	const factor = isMini ? miniRatio : 1;
+	let tally = 0;
 
-    const updateX = `${centerX + posX[i] / factor}px`;
-    const enterX = `${-offX}px`;
-    const exitX = `${offX}px`;
+  const enter = () => {};
 
-    if (state === 'enter') {
-      $b.style('left', enterX).style('top', `${posY}px`);
-    }
 
-    const animateX = state === 'exit' ? exitX : updateX;
-    const animateY = state === 'exit' ? $b.style('top') : `${posY}px`;
+  const update = sel => {
+    // console.log({sel})
+    // sel.sort((a, b) => d3.ascending(a.PubYear, b.PubYear))
+    // console.log({sel})
+		const posY = [];
 
-    $b.transition()
+		sel.each((d, i, n) => {
+      if (i === 0) console.log(d)
+			posY.push(tally);
+			tally += n[i].offsetHeight;
+		});
+
+    console.log(posY)
+		sel.style('left', (d, i, n) => {
+			const $b = d3.select(n[i]);
+			const isEnter = $b.attr('data-enter');
+			return isEnter ? `${-offX}px` : $b.style('left');
+		});
+
+    sel
+			.attr('data-enter', null)
+			.transition()
       .duration(500)
-      .delay((posY * factor) / 10)
+      .delay((d, i) => (i * factor) / 10)
       .ease(d3.easeCubicInOut)
-      .style('top', animateY)
-      .style('left', animateX);
+      .style('top', (d, i) => `${posY[i]}px`)
+			.style('left', (d, i) => `${centerX + posX[i] / factor}px`);
 
-    if (state !== 'exit') posY += $b.node().offsetHeight;
-  });
 
-  graphic.style('height', `${posY}px`);
+	};
 
-  const count = $book.filter(d => d.previousState === 'update' || d.previousState === 'enter')
-  $miniCount.text(count.size())
+  const exit = sel => {
+		sel.transition()
+			.duration(500)
+			.delay((d, i) => (i * factor) / 10)
+			.ease(d3.easeCubicInOut)
+			.attr('data-enter', 'true')
+			.style('left', `${offX}px`);
+  };
+
+	// console.log(bookData.length);
+  graphic
+    .selectAll('.book')
+    .data(bookData, d => d.Title)
+    .join(enter, update, exit);
+
+  // });
+
+  graphic.style('height', `${tally}px`);
+
+  $miniCount.text(bookData.length);
 }
 
 function stack() {
-  const damp = 1 / NUM_BOOKS;
+	bookData = rawData.filter(applyFilters);
+
+  const damp = 1 / numBooks;
   const scaleSin = $graphic.node().offsetWidth * 0.05;
   const scaleOff = 10;
 
-  const posX = d3.range(NUM_BOOKS).map(i => {
+  const posX = d3.range(numBooks).map(i => {
     const dir = Math.random() < 0.5 ? -1 : 1;
     const offset = i === 0 ? 0 : Math.random() * dir * scaleOff;
     return Math.sin(i * damp * Math.PI * 2) * scaleSin + offset;
   });
 
   stackBook({ graphic: $graphic, posX });
-  stackBook({ graphic: $miniCont, posX });
+  stackBook({ graphic: $miniGraphic, posX });
+}
+
+function resizeFit() {
+  const h = [];
+  $book.each((d, i, n) => h.push(n[i].offsetHeight));
+  const maxSize = d3.min(h) / 2;
+  const minSize = 16;
+  Fitty('.book__title', {
+    minSize,
+    maxSize,
+    // multiLine: false,
+  });
 }
 
 function resize() {
   setSizes();
   stack();
+  resizeFit();
 }
-
-function bindData() {
-  const dataAttr = ['year', 'title', 'author', 'contributor'];
-
-  const el = this;
-  const $b = d3.select(el);
-  const datum = {};
-
-  dataAttr.forEach(attr => (datum[attr] = $b.attr(`data-${attr}`)));
-  el.__data__ = cleanDatum(datum);
-}
-
-function makeMini() {
-  $mini.each((d, i, n) => {
-    const bigBook = $book.nodes()[i];
-    const bigColor = d3.select(bigBook).style('background');
-    const $m = d3.select(n[i]);
-    $m.style('background', bigColor);
-  });
-}
-
 
 function sortData(slug) {
   let $sorted = null;
   let $miniSorted = null;
 
-  if (slug === 'author')
+  if (slug === 'Author')
     $sorted = $book.sort((a, b) => {
-      if (a.author && b.author) {
-        const authorA = a.author[0].last;
-        const authorB = b.author[0].last;
+      if (a.AuthorClean && b.AuthorClean) {
+        const authorA = a.AuthorClean[0].last;
+        const authorB = b.AuthorClean[0].last;
         return d3.ascending(authorA, authorB);
       }
     });
   else $sorted = $book.sort((a, b) => d3.ascending(a[slug], b[slug]));
 
-  if (slug === 'author')
-    $miniSorted = $mini.sort((a, b) => {
-      if (a.author && b.author) {
-        const authorA = a.author[0].last;
-        const authorB = b.author[0].last;
+  if (slug === 'Author')
+    $miniSorted = $bookM.sort((a, b) => {
+      if (a.AuthorClean && b.AuthorClean) {
+        const authorA = a.AuthorClean[0].last;
+        const authorB = b.AuthorClean[0].last;
         return d3.ascending(authorA, authorB);
       }
     });
-  else $miniSorted = $mini.sort((a, b) => d3.ascending(a[slug], b[slug]));
-
-  $book = $sorted
-  $mini = $miniSorted
+  else $miniSorted = $bookM.sort((a, b) => d3.ascending(a[slug], b[slug]));
+  //
+  $book = $sorted;
+  $bookM = $miniSorted;
+  console.log({$sorted, $book})
 }
 
 function handleSort() {
@@ -197,9 +214,9 @@ function handleSort() {
   const slug = sel.attr('data-slug');
   const $sorted = sortData(slug);
 
-  $buttons.classed('is-active', false)
-  sel.classed('is-active', true)
-  //filters.keyword = !filters.keyword;
+  $buttons.classed('is-active', false);
+  sel.classed('is-active', true);
+  // filters.keyword = !filters.keyword;
   stack();
 }
 
@@ -212,47 +229,42 @@ function setupUIEnter() {
     selector: '#graphic',
     enter: () => {
       $sidebar.classed('is-visible', true);
-      $miniGraphic.classed('is-visible', true);
-      console.log("entered")
+      $mini.classed('is-visible', true);
     },
     exit: () => {
       $sidebar.classed('is-visible', false);
-      $miniGraphic.classed('is-visible', false)
-      console.log("exited")
-    },
-    progress: (el, progress) => {
-      console.log(progress)
+      $mini.classed('is-visible', false);
     },
     offset: 0.5,
     once: true,
   });
 }
 
-function handleSlide(value){
-  const [start, end] = value
-  filters.years = [+start, +end]
-  stack()
+function handleSlide(value) {
+  const [start, end] = value;
+  filters.years = [+start, +end];
+  stack();
 }
 
-function setupSlider(){
-  const start = [MIN_YEAR, MAX_YEAR]
+function setupSlider() {
+  const start = [MIN_YEAR, MAX_YEAR - 5];
   const slider = noUiSlider.create($slider.node(), {
     start,
-    step: 4,
+    step: 5,
     connect: true,
     tooltips: [
       {
-        to: value => +value
+        to: value => +value,
       },
       {
-        to: value => +value
-      }
+        to: value => +value,
+      },
     ],
     range: {
-      min: +MIN_YEAR,
-      max: +MAX_YEAR
-    }
-  })
+      min: MIN_YEAR,
+      max: MAX_YEAR,
+    },
+  });
 
   slider.on('change', handleSlide);
 }
@@ -260,43 +272,45 @@ function setupSlider(){
 function setupUI() {
   setupSort();
   setupUIEnter();
-  setupSlider()
+  setupSlider();
 }
 
-function colorBg(d) {
-  d3.select(this).style('background-color', scaleColor(d.year));
-}
-
-function setFont(d){
-  const random = bookFonts[Math.floor(Math.random() * bookFonts.length)]
-  console.log({random})
-  d3.select(this).style('font-family', random)
-}
-
-function colorize() {
+function setupFigures() {
   const yearRange = [MIN_YEAR, MAX_YEAR];
   scaleColor.domain(yearRange);
-  // console.log(COLORS.length);
-  // console.log(scaleColor.thresholds());
-  $book.each(colorBg);
-  $mini.each(colorBg);
+  numBooks = bookData.length;
+  bookData.sort((a, b) => d3.ascending(a.TitleClean, b.TitleClean));
+  const randomFont = bookFonts[Math.floor(Math.random() * bookFonts.length)]
 
-  // set fonts
-  $book.each(setFont)
-}
+  $book = $graphic
+    .selectAll('.book')
+    .data(bookData, d => d.Title)
+    .join('div')
+    .attr('class', 'book')
+    .style('background-color', d => scaleColor(d.PubYear));
 
-function setup() {
-  $book.each(bindData);
-  $mini.each(bindData);
-  colorize();
-  stack();
-  makeMini();
-  setupUI();
-  resize();
+  $bookM = $miniGraphic
+    .selectAll('.book')
+    .data(bookData, d => d.Title)
+    .join('div')
+    .attr('class', 'book book--mini')
+    .style('background-color', d => scaleColor(d.PubYear));
+
+  $book
+    .append('h4')
+    .attr('class', 'book__title')
+    .text(d => d.TitleClean ? d.TitleClean : d.Title);
+    .style('font-family', randomFont)
+
+
 }
 
 async function init() {
-  setup();
+  rawData = await loadData();
+  bookData = rawData;
+  setupFigures();
+  setupUI();
+  resize();
 }
 
 export default { init, resize };
