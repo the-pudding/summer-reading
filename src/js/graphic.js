@@ -292,12 +292,14 @@ function setupFigures() {
     .style('font-family', generateRandomFont)
 }
 
-async function init() {
-  rawData = await loadData();
-  bookData = rawData;
-  setupFigures();
-  setupUI();
-  resize();
+function init() {
+  loadData().then(data => {
+		rawData = data;
+		bookData = rawData;
+		setupFigures();
+		setupUI();
+		resize();
+	});
 }
 
 export default { init, resize };
