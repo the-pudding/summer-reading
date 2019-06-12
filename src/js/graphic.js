@@ -186,6 +186,7 @@ function sortData(slug) {
 
   if (slug === 'Author')
     $sorted = $book.sort((a, b) => {
+
       if (a.AuthorClean && b.AuthorClean) {
         const authorA = a.AuthorClean[0].last;
         const authorB = b.AuthorClean[0].last;
@@ -299,8 +300,8 @@ function setupFigures() {
   $book
     .append('h4')
     .attr('class', 'book__title')
-    .text(d => d.TitleClean ? d.TitleClean : d.Title);
-    .style('font-family', randomFont)
+    .text(d => d.TitleClean ? d.TitleClean : d.Title)
+    .style('font-family', randomFont);
 
 
 }
