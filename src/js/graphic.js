@@ -8,6 +8,7 @@ import loadData from './load-data';
 const $html = d3.select('html');
 const $graphic = d3.select('#graphic');
 const $sidebar = d3.select('#sidebar');
+const $toggle = $sidebar.select('.drawer__toggle')
 const $mini = d3.select('#minimap');
 const $miniGraphic = $mini.select('.minimap__graphic');
 const $miniTitle = $mini.select('.minimap__hed');
@@ -125,7 +126,9 @@ function stackBook({ graphic, book, posX }) {
       .delay((d, i) => 250 + (d.wasEnter ? count * 2 : 0) + i * 2)
       .ease(d3.easeCubicInOut)
       .style('top', (d, i) => `${posY[i]}px`)
-      .style('left', (d, i) => `${centerX + posX[i] / factor}px`);
+      .style('left', (d, i) => `${centerX + posX[i] / factor}px`)
+
+    //sel.classed('misplaced', false)
   };
 
   const exit = sel => {
@@ -139,6 +142,7 @@ function stackBook({ graphic, book, posX }) {
   };
 
   book.data(bookData, d => d.Title).join(enter, update, exit);
+  //book.classed('misplaced', false)
 
   graphic.style('height', `${tally}px`);
 
@@ -238,10 +242,12 @@ function setupUIEnter() {
     enter: () => {
       $sidebar.classed('is-visible', true);
       $mini.classed('is-visible', true);
+      $toggle.classed('is-visible', true)
     },
     exit: () => {
       $sidebar.classed('is-visible', false);
       $mini.classed('is-visible', false);
+      $toggle.classed('is-visible', false)
     },
     offset: 0.67,
     // once: true,
@@ -348,6 +354,16 @@ function checkFontsReady() {
   }
 }
 
+function setupSidebarDrawer(){
+  $sidebar.classed('is-visible', false)
+
+  $toggle.on('click', () => {
+    const visible = $sidebar.classed('is-visible')
+    $sidebar.classed('is-visible', !visible)
+    $toggle.classed('is-visible', !visible)
+  })
+}
+
 function setupLocator() {
   window.addEventListener('scroll', handleScroll, true);
 }
@@ -360,6 +376,7 @@ function init() {
     setupFigures();
     setupUI();
     setupLocator();
+    setupSidebarDrawer();
     resize();
     setupComplete = true;
   });
