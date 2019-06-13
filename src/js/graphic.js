@@ -27,6 +27,7 @@ const REM = 16;
 const MAX_YEAR = 2010;
 const MIN_YEAR = 1880;
 const FONTS = ['vast', 'righteous', 'unica', 'abril', 'quintessential'];
+const EV_BREAKPOINT = 900;
 
 const scaleColor = d3
   .scaleQuantize()
@@ -44,6 +45,7 @@ let setupComplete = false;
 let fontCheckCount = 0;
 let scrollTick = false;
 let windowH = 0;
+let windowW = 0;
 
 function setSizes() {
   const pad = REM * 2;
@@ -189,6 +191,7 @@ function resizeLocator() {
 
 function resize() {
   windowH = window.innerHeight;
+  windowW = window.innerWidth;
   setSizes();
   stack();
   resizeFit();
@@ -240,9 +243,11 @@ function setupUIEnter() {
   EnterView({
     selector: '#graphic',
     enter: () => {
-      $sidebar.classed('is-visible', true);
+      if (windowW >= EV_BREAKPOINT){
+        $sidebar.classed('is-visible', true);
+        $toggle.classed('is-visible', true)
+      }
       $mini.classed('is-visible', true);
-      $toggle.classed('is-visible', true)
     },
     exit: () => {
       $sidebar.classed('is-visible', false);

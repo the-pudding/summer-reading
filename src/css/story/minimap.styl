@@ -11,8 +11,9 @@
 	overflow hidden
 	padding 1rem
 	background-color darken($bg, 5)
-	&.is-visible
-		transform translateX(0)
+	+mq('bp-5')
+		&.is-visible
+			transform translateX(0)
   .minimap__hed
 		margin 0
 		set-type-size(small, false)
