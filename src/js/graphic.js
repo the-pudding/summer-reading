@@ -42,11 +42,15 @@ let rawData = [];
 let miniRatio = 0;
 let numBooks = 0;
 let fontsReady = false;
+let fallbackFont = false;
 let setupComplete = false;
 let fontCheckCount = 0;
 let scrollTick = false;
 let windowW = 0;
-// let windowH = 0;
+
+function generateRandomFont() {
+  return FONTS[Math.floor(Math.random() * FONTS.length)];
+}
 
 function setSizes() {
   const pad = REM * 2;
@@ -144,7 +148,6 @@ function stackBook({ graphic, book, posX, jump }) {
   };
 
   book.data(bookData, d => d.Title).join(enter, update, exit);
-  // book.classed('misplaced', false)
 
   graphic.style('height', `${tally}px`);
 
@@ -179,7 +182,14 @@ function resizeFit() {
       maxSize,
       // multiLine: false,
     });
-    $book.select('.book__title').classed('is-visible', true);
+    $book
+      .select('.book__title')
+      .attr('class', () => {
+        const font = fallbackFont ? '' : ` font-${generateRandomFont()}`;
+        console.log(fallbackFont, font);
+        return `book__title${font}`;
+      })
+      .classed('is-visible', true);
   }
 }
 
@@ -310,10 +320,6 @@ function setupUI() {
   setupSlider();
 }
 
-function generateRandomFont() {
-  return FONTS[Math.floor(Math.random() * FONTS.length)];
-}
-
 function openTooltip(d) {
   $tooltip.classed('is-active', true);
   console.log({ d });
@@ -356,7 +362,7 @@ function setupFigures() {
 
   $book
     .append('h4')
-    .attr('class', () => `book__title font-${generateRandomFont()}`)
+    .attr('class', 'book__title')
     .text(d => d.TitleClean);
 
   $book.on('click', openTooltip);
@@ -371,7 +377,9 @@ function checkFontsReady() {
     if (setupComplete) resizeFit();
   } else if (fontCheckCount < 50) d3.timeout(checkFontsReady, 200);
   else {
-    // TODO fallback
+    fallbackFont = true;
+    fontsReady = true;
+    if (setupComplete) resizeFit();
   }
 }
 
