@@ -13,6 +13,7 @@ const fonts = [
   { family: 'Righteous', weight: 400 },
   { family: 'Unica One', weight: 400 },
   { family: 'Abril Fatface', weight: 400 },
+  { family: 'Quintessential', weight: 400 },
 ];
 
 fonts.forEach(loadFont);

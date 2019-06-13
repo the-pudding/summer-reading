@@ -23,7 +23,7 @@ let $bookM = null;
 const REM = 16;
 const MAX_YEAR = 2010;
 const MIN_YEAR = 1880;
-const FONTS = ['vast', 'righteous', 'unica', 'abril'];
+const FONTS = ['vast', 'righteous', 'unica', 'abril', 'quintessential'];
 
 const scaleColor = d3
   .scaleQuantize()
@@ -99,6 +99,8 @@ function stackBook({ graphic, book, posX }) {
   const enter = () => {};
 
   const update = sel => {
+    const count = sel.size();
+
     const posY = [];
     sel.each((d, i, n) => {
       posY.push(tally);
@@ -116,7 +118,7 @@ function stackBook({ graphic, book, posX }) {
       .attr('data-enter', null)
       .transition()
       .duration(500)
-      .delay((d, i) => 250 + (d.wasEnter ? 500 : (i * factor) / 10))
+      .delay((d, i) => 250 + (d.wasEnter ? count * 2 : 0) + i * 2)
       .ease(d3.easeCubicInOut)
       .style('top', (d, i) => `${posY[i]}px`)
       .style('left', (d, i) => `${centerX + posX[i] / factor}px`);
@@ -126,17 +128,13 @@ function stackBook({ graphic, book, posX }) {
     sel
       .transition()
       .duration(500)
-      // .delay((d, i) => (i * factor) / 10)
+      .delay((d, i) => i * 2)
       .ease(d3.easeCubicInOut)
       .attr('data-enter', 'true')
       .style('left', `${offX}px`);
   };
 
-  // console.log(bookData.length);
-
   book.data(bookData, d => d.Title).join(enter, update, exit);
-
-  // });
 
   graphic.style('height', `${tally}px`);
 
@@ -219,8 +217,8 @@ function setupUIEnter() {
       $sidebar.classed('is-visible', false);
       $mini.classed('is-visible', false);
     },
-    offset: 0.5,
-    once: true,
+    offset: 0.67,
+    // once: true,
   });
 }
 
@@ -315,11 +313,13 @@ function setupFigures() {
 function checkFontsReady() {
   fontCheckCount += 1;
   const notReady = FONTS.find(d => !$html.classed(`loaded-${d}`));
-  console.log({ notReady });
   if (!notReady) {
     fontsReady = true;
     if (setupComplete) resizeFit();
   } else if (fontCheckCount < 30) d3.timeout(checkFontsReady, 200);
+  else {
+    // TODO fallback
+  }
 }
 
 function init() {

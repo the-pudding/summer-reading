@@ -9,8 +9,8 @@
 	transition transform 500ms ease-in-out
 	z-index set-index(top)
 	overflow hidden
-	padding 3rem 1rem 0 1rem
-	background-color $bg
+	padding 1rem
+	background-color darken($bg, 5)
 	&.is-visible
 		transform translateX(0)
 		transition transform 500ms ease-in-out
@@ -21,10 +21,10 @@
 		margin 0 auto
 		font-family $sans-display
 		font-weight 600
-		color $tertiary
+		color darken($bg, 60)
 		text-align center
 		line-height 1
-		padding 1rem 0
+		padding-bottom 1rem
 		span
 			color $primary
 
