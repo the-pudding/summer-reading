@@ -6,16 +6,13 @@
 	<h1 class='intro__hed-hipster'>{{doc.title1}}</h1>
 	<h1 class='intro__hed-ribbon'><span class='intro__hed-text'>{{doc.title2}}</span></h1>
 	<!-- <p class='intro__dek'>{{meta.description}}</p> -->
-	<div class='intro__meta'>
-		<p class='intro__byline'>By
+		<p class='intro__byline'>Upcycled by:
 			<a href='{{doc.author1URL}}' target='_blank'>
 				{{doc.author1}}
 			</a> & <a href='{{doc.author2URL}}' target='_blank'>
 				{{doc.author2}}
 			</a>
 		</p>
-		<time class='intro__time'>{{doc.time}}</time>
-	</div>
 	<div class='intro__prelude'>
 		{{#each doc.prelude}}
 			<p>{{value}}</p>
