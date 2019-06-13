@@ -6,9 +6,10 @@ import COLORS from './colors';
 import loadData from './load-data';
 
 const $html = d3.select('html');
+const $main = d3.select('main');
 const $graphic = d3.select('#graphic');
 const $sidebar = d3.select('#sidebar');
-const $toggle = $sidebar.select('.drawer__toggle')
+const $toggle = $sidebar.select('.drawer__toggle');
 const $mini = d3.select('#minimap');
 const $miniGraphic = $mini.select('.minimap__graphic');
 const $miniTitle = $mini.select('.minimap__hed');
@@ -44,8 +45,8 @@ let fontsReady = false;
 let setupComplete = false;
 let fontCheckCount = 0;
 let scrollTick = false;
-let windowH = 0;
 let windowW = 0;
+// let windowH = 0;
 
 function setSizes() {
   const pad = REM * 2;
@@ -94,13 +95,14 @@ function applyFilters(d) {
   return onScreen;
 }
 
-function stackBook({ graphic, book, posX }) {
+function stackBook({ graphic, book, posX, jump }) {
   const graphicW = graphic.node().offsetWidth;
   const centerX = graphicW / 2;
   const offX = graphicW * 1.5;
 
   const isMini = graphic.classed('minimap__graphic');
   const factor = isMini ? miniRatio : 1;
+  const duration = jump ? 0 : 500;
   let tally = 0;
 
   const enter = () => {};
@@ -124,34 +126,32 @@ function stackBook({ graphic, book, posX }) {
     sel
       .attr('data-enter', null)
       .transition()
-      .duration(500)
-      .delay((d, i) => 250 + (d.wasEnter ? count * 2 : 0) + i * 2)
+      .duration(duration)
+      .delay((d, i) => (jump ? 0 : 250 + (d.wasEnter ? count * 2 : 0) + i * 2))
       .ease(d3.easeCubicInOut)
       .style('top', (d, i) => `${posY[i]}px`)
-      .style('left', (d, i) => `${centerX + posX[i] / factor}px`)
-
-    //sel.classed('misplaced', false)
+      .style('left', (d, i) => `${centerX + posX[i] / factor}px`);
   };
 
   const exit = sel => {
     sel
       .transition()
-      .duration(500)
-      .delay((d, i) => i * 2)
+      .duration(duration)
+      .delay((d, i) => (jump ? 0 : i * 2))
       .ease(d3.easeCubicInOut)
       .attr('data-enter', 'true')
       .style('left', `${offX}px`);
   };
 
   book.data(bookData, d => d.Title).join(enter, update, exit);
-  //book.classed('misplaced', false)
+  // book.classed('misplaced', false)
 
   graphic.style('height', `${tally}px`);
 
   $miniCount.text(bookData.length);
 }
 
-function stack() {
+function stack(jump) {
   bookData = rawData.filter(applyFilters);
 
   const damp = 1 / numBooks;
@@ -164,8 +164,8 @@ function stack() {
     return Math.sin(i * damp * Math.PI * 2) * scaleSin + offset;
   });
 
-  stackBook({ graphic: $graphic, book: $book, posX });
-  stackBook({ graphic: $miniGraphic, book: $bookM, posX });
+  stackBook({ graphic: $graphic, book: $book, posX, jump });
+  stackBook({ graphic: $miniGraphic, book: $bookM, posX, jump });
 }
 
 function resizeFit() {
@@ -190,10 +190,10 @@ function resizeLocator() {
 }
 
 function resize() {
-  windowH = window.innerHeight;
-  windowW = window.innerWidth;
+  // windowH = window.innerHeight;
+  windowW = $main.node().offsetWidth;
   setSizes();
-  stack();
+  stack(true);
   resizeFit();
   resizeLocator();
   updateScroll();
@@ -243,16 +243,16 @@ function setupUIEnter() {
   EnterView({
     selector: '#graphic',
     enter: () => {
-      if (windowW >= EV_BREAKPOINT){
+      if (windowW >= EV_BREAKPOINT) {
         $sidebar.classed('is-visible', true);
-        $toggle.classed('is-visible', true)
+        $toggle.classed('is-visible', true);
       }
       $mini.classed('is-visible', true);
     },
     exit: () => {
       $sidebar.classed('is-visible', false);
       $mini.classed('is-visible', false);
-      $toggle.classed('is-visible', false)
+      $toggle.classed('is-visible', false);
     },
     offset: 0.67,
     // once: true,
@@ -359,14 +359,14 @@ function checkFontsReady() {
   }
 }
 
-function setupSidebarDrawer(){
-  $sidebar.classed('is-visible', false)
+function setupSidebarDrawer() {
+  $sidebar.classed('is-visible', false);
 
   $toggle.on('click', () => {
-    const visible = $sidebar.classed('is-visible')
-    $sidebar.classed('is-visible', !visible)
-    $toggle.classed('is-visible', !visible)
-  })
+    const visible = $sidebar.classed('is-visible');
+    $sidebar.classed('is-visible', !visible);
+    $toggle.classed('is-visible', !visible);
+  });
 }
 
 function setupLocator() {
