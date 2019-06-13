@@ -186,7 +186,6 @@ function resizeFit() {
       .select('.book__title')
       .attr('class', () => {
         const font = fallbackFont ? '' : ` font-${generateRandomFont()}`;
-        console.log(fallbackFont, font);
         return `book__title${font}`;
       })
       .classed('is-visible', true);
