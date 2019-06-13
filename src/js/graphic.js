@@ -5,6 +5,7 @@ import noUiSlider from 'nouislider';
 import COLORS from './colors';
 import loadData from './load-data';
 
+const $html = d3.select('html');
 const $graphic = d3.select('#graphic');
 const $sidebar = d3.select('#sidebar');
 const $mini = d3.select('#minimap');
@@ -14,7 +15,7 @@ const $miniCount = $miniTitle.select('span');
 const $slider = $sidebar.select('.slider');
 const $buttons = $sidebar.selectAll('.nav__sort-button');
 const $tooltip = d3.select('#tooltip');
-const $tooltipClose = $tooltip.select('.tooltip__close')
+const $tooltipClose = $tooltip.select('.tooltip__close');
 
 let $book = null;
 let $bookM = null;
@@ -22,6 +23,7 @@ let $bookM = null;
 const REM = 16;
 const MAX_YEAR = 2010;
 const MIN_YEAR = 1880;
+const FONTS = ['vast', 'righteous', 'unica', 'abril'];
 
 const scaleColor = d3
   .scaleQuantize()
@@ -34,8 +36,9 @@ let bookData = [];
 let rawData = [];
 let miniRatio = 0;
 let numBooks = 0;
-
-const bookFonts = ['Vast Shadow', 'Righteous', 'Unica One']
+let fontsReady = false;
+let setupComplete = false;
+let fontCheckCount = 0;
 
 function setSizes() {
   const pad = REM * 2;
@@ -89,53 +92,49 @@ function stackBook({ graphic, book, posX }) {
   const centerX = graphicW / 2;
   const offX = graphicW * 1.5;
 
-	const isMini = graphic.classed('minimap__graphic');
-	const factor = isMini ? miniRatio : 1;
-	let tally = 0;
+  const isMini = graphic.classed('minimap__graphic');
+  const factor = isMini ? miniRatio : 1;
+  let tally = 0;
 
   const enter = () => {};
 
-
   const update = sel => {
+    const posY = [];
+    sel.each((d, i, n) => {
+      posY.push(tally);
+      tally += n[i].offsetHeight;
+      d.wasEnter = !!d3.select(n[i]).attr('data-enter');
+    });
 
-		const posY = [];
-		sel.each((d, i, n) => {
-			posY.push(tally);
-			tally += n[i].offsetHeight;
-		});
-
-		sel.style('left', (d, i, n) => {
-			const $b = d3.select(n[i]);
-			const isEnter = $b.attr('data-enter');
-			return isEnter ? `${-offX}px` : $b.style('left');
-		});
+    sel.style('left', (d, i, n) => {
+      const $b = d3.select(n[i]);
+      const isEnter = $b.attr('data-enter');
+      return isEnter ? `${-offX}px` : $b.style('left');
+    });
 
     sel
-			.attr('data-enter', null)
-			.transition()
+      .attr('data-enter', null)
+      .transition()
       .duration(500)
-      .delay((d, i) => (i * factor) / 10)
+      .delay((d, i) => 250 + (d.wasEnter ? 500 : (i * factor) / 10))
       .ease(d3.easeCubicInOut)
       .style('top', (d, i) => `${posY[i]}px`)
-			.style('left', (d, i) => `${centerX + posX[i] / factor}px`);
-
-
-	};
-
-  const exit = sel => {
-		sel.transition()
-			.duration(500)
-			.delay((d, i) => (i * factor) / 10)
-			.ease(d3.easeCubicInOut)
-			.attr('data-enter', 'true')
-			.style('left', `${offX}px`);
+      .style('left', (d, i) => `${centerX + posX[i] / factor}px`);
   };
 
-	// console.log(bookData.length);
+  const exit = sel => {
+    sel
+      .transition()
+      .duration(500)
+      // .delay((d, i) => (i * factor) / 10)
+      .ease(d3.easeCubicInOut)
+      .attr('data-enter', 'true')
+      .style('left', `${offX}px`);
+  };
 
-  book
-    .data(bookData, d => d.Title)
-    .join(enter, update, exit);
+  // console.log(bookData.length);
+
+  book.data(bookData, d => d.Title).join(enter, update, exit);
 
   // });
 
@@ -145,7 +144,7 @@ function stackBook({ graphic, book, posX }) {
 }
 
 function stack() {
-	bookData = rawData.filter(applyFilters);
+  bookData = rawData.filter(applyFilters);
 
   const damp = 1 / numBooks;
   const scaleSin = $graphic.node().offsetWidth * 0.05;
@@ -166,11 +165,13 @@ function resizeFit() {
   $book.each((d, i, n) => h.push(n[i].offsetHeight));
   const maxSize = d3.min(h) / 2;
   const minSize = 16;
-  Fitty('.book__title', {
-    minSize,
-    maxSize,
-    // multiLine: false,
-  });
+  if (fontsReady)
+    Fitty('.book__title', {
+      minSize,
+      maxSize,
+      // multiLine: false,
+    });
+  $book.select('.book__title').classed('is-visible', true);
 }
 
 function resize() {
@@ -180,16 +181,14 @@ function resize() {
 }
 
 function sortData(slug) {
-  let $sorted = null;
-  let $miniSorted = null;
+  const $sorted = null;
+  const $miniSorted = null;
 
   if (slug === 'AuthorClean')
     rawData.sort((a, b) => {
-
-        const authorA = a.AuthorClean[0].last;
-        const authorB = b.AuthorClean[0].last;
-        return d3.ascending(authorA, authorB);
-
+      const authorA = a.AuthorClean[0].last;
+      const authorB = b.AuthorClean[0].last;
+      return d3.ascending(authorA, authorB);
     });
   else rawData.sort((a, b) => d3.ascending(a[slug], b[slug]));
 }
@@ -260,23 +259,25 @@ function setupUI() {
   setupSlider();
 }
 
-function generateRandomFont(){
-  return bookFonts[Math.floor(Math.random() * bookFonts.length)]
+function generateRandomFont() {
+  return FONTS[Math.floor(Math.random() * FONTS.length)];
 }
 
-function openTooltip(d){
-  $tooltip.classed('is-active', true)
-  console.log({d})
+function openTooltip(d) {
+  $tooltip.classed('is-active', true);
+  console.log({ d });
 
-  const img = $tooltip.selectAll('img').attr('src', d.ImageUrl)
-  $tooltip.select('.tooltip__meta-title').text(d.TitleClean)
-  $tooltip.select('.tooltip__meta-author').text(d.AuthorClean[0].first.concat(` ${d.AuthorClean[0].last}`))
-  $tooltip.select('.tooltip__meta-desc').text(d.GoodreadsDes)
-  $tooltip.select('.tooltip__gr').attr('href', d.GoodreadsLink)
+  const img = $tooltip.selectAll('img').attr('src', d.ImageUrl);
+  $tooltip.select('.tooltip__meta-title').text(d.TitleClean);
+  $tooltip
+    .select('.tooltip__meta-author')
+    .text(d.AuthorClean[0].first.concat(` ${d.AuthorClean[0].last}`));
+  $tooltip.select('.tooltip__meta-desc').text(d.GoodreadsDes);
+  $tooltip.select('.tooltip__gr').attr('href', d.GoodreadsLink);
 }
 
-function closeTooltip(){
-  $tooltip.classed('is-active', false)
+function closeTooltip() {
+  $tooltip.classed('is-active', false);
 }
 
 function setupFigures() {
@@ -295,30 +296,42 @@ function setupFigures() {
   $bookM = $miniGraphic
     .selectAll('.book')
     .data(bookData, d => {
-    //  console.log(d)
-      return d.Title})
+      //  console.log(d)
+      return d.Title;
+    })
     .join('div')
     .attr('class', 'book book--mini')
     .style('background-color', d => scaleColor(d.PubYear));
 
-  const $title = $book
+  $book
     .append('h4')
-    .attr('class', 'book__title')
-    .text(d => d.TitleClean)
-    .style('font-family', generateRandomFont)
+    .attr('class', () => `book__title font-${generateRandomFont()}`)
+    .text(d => d.TitleClean);
 
-  $book.on('click', openTooltip)
-  $tooltipClose.on('click', closeTooltip)
+  $book.on('click', openTooltip);
+  $tooltipClose.on('click', closeTooltip);
+}
+
+function checkFontsReady() {
+  fontCheckCount += 1;
+  const notReady = FONTS.find(d => !$html.classed(`loaded-${d}`));
+  console.log({ notReady });
+  if (!notReady) {
+    fontsReady = true;
+    if (setupComplete) resizeFit();
+  } else if (fontCheckCount < 30) d3.timeout(checkFontsReady, 200);
 }
 
 function init() {
+  checkFontsReady();
   loadData().then(data => {
-		rawData = data;
-		bookData = rawData;
-		setupFigures();
-		setupUI();
-		resize();
-	});
+    rawData = data;
+    bookData = rawData;
+    setupFigures();
+    setupUI();
+    resize();
+    setupComplete = true;
+  });
 }
 
 export default { init, resize };
