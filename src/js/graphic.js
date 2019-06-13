@@ -1,4 +1,4 @@
-/* global d3 */
+/* global d3 window.requestAnimationFrame window.innerHeight */
 import Fitty from 'fitty';
 import EnterView from 'enter-view';
 import noUiSlider from 'nouislider';
@@ -16,6 +16,8 @@ const $slider = $sidebar.select('.slider');
 const $buttons = $sidebar.selectAll('.nav__sort-button');
 const $tooltip = d3.select('#tooltip');
 const $tooltipClose = $tooltip.select('.tooltip__close');
+const $locator = $miniGraphic.select('.graphic__locator');
+const $graphicEl = $graphic.node();
 
 let $book = null;
 let $bookM = null;
@@ -39,6 +41,8 @@ let numBooks = 0;
 let fontsReady = false;
 let setupComplete = false;
 let fontCheckCount = 0;
+let scrollTick = false;
+let windowH = 0;
 
 function setSizes() {
   const pad = REM * 2;
@@ -163,25 +167,32 @@ function resizeFit() {
   $book.each((d, i, n) => h.push(n[i].offsetHeight));
   const maxSize = d3.min(h) / 2;
   const minSize = 16;
-  if (fontsReady)
+  if (fontsReady) {
     Fitty('.book__title', {
       minSize,
       maxSize,
       // multiLine: false,
     });
-  $book.select('.book__title').classed('is-visible', true);
+    $book.select('.book__title').classed('is-visible', true);
+  }
+}
+
+function resizeLocator() {
+  const gH = $miniGraphic.node().offsetHeight;
+  const h = Math.floor((gH / h) * gH);
+  $locator.style('height', `${h}px`);
 }
 
 function resize() {
+  windowH = window.innerHeight;
   setSizes();
   stack();
   resizeFit();
+  resizeLocator();
+  updateScroll();
 }
 
 function sortData(slug) {
-  const $sorted = null;
-  const $miniSorted = null;
-
   if (slug === 'AuthorClean')
     rawData.sort((a, b) => {
       const authorA = a.AuthorClean[0].last;
@@ -200,6 +211,21 @@ function handleSort() {
   sel.classed('is-active', true);
   // filters.keyword = !filters.keyword;
   stack();
+}
+
+function updateScroll() {
+  scrollTick = false;
+  const { bottom, height } = $graphicEl.getBoundingClientRect();
+  const progress = Math.min(1, Math.max(0, 1 - bottom / height));
+  const percent = d3.format('%')(progress);
+  $locator.style('top', percent);
+}
+
+function handleScroll() {
+  if (!scrollTick) {
+    scrollTick = true;
+    window.requestAnimationFrame(updateScroll);
+  }
 }
 
 function setupSort() {
@@ -322,6 +348,10 @@ function checkFontsReady() {
   }
 }
 
+function setupLocator() {
+  window.addEventListener('scroll', handleScroll, true);
+}
+
 function init() {
   checkFontsReady();
   loadData().then(data => {
@@ -329,6 +359,7 @@ function init() {
     bookData = rawData;
     setupFigures();
     setupUI();
+    setupLocator();
     resize();
     setupComplete = true;
   });

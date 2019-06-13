@@ -6,14 +6,13 @@
 	top 0
 	right 0
 	transform translateX(100%)
-	transition transform 500ms ease-in-out
+	transition transform 250ms ease-in-out
 	z-index set-index(top)
 	overflow hidden
 	padding 1rem
 	background-color darken($bg, 5)
 	&.is-visible
 		transform translateX(0)
-		transition transform 500ms ease-in-out
   .minimap__hed
 		margin 0
 		set-type-size(small, false)
@@ -33,3 +32,14 @@
 	.book
 		position absolute
 		transform translate(-50%, 0)
+
+	.graphic__locator
+		position absolute
+		top 0
+		left 50%
+		transform translateX(-50%)
+		width 67%
+		height 1rem
+		z-index set-index(top)
+		background-color $primary
+		opacity 0.2
