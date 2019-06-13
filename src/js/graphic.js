@@ -20,6 +20,7 @@ const $tooltip = d3.select('#tooltip');
 const $tooltipClose = $tooltip.select('.tooltip__close');
 const $locator = $miniGraphic.select('.graphic__locator');
 const $graphicEl = $graphic.node();
+const $graphicScale = $graphic.select('.graphic__scale');
 
 let $book = null;
 let $bookM = null;
@@ -47,6 +48,7 @@ let setupComplete = false;
 let fontCheckCount = 0;
 let scrollTick = false;
 let windowW = 0;
+let currentSlug = 'TitleClean';
 
 function generateRandomFont() {
   return FONTS[Math.floor(Math.random() * FONTS.length)];
@@ -171,6 +173,45 @@ function stack(jump) {
   stackBook({ graphic: $miniGraphic, book: $bookM, posX, jump });
 }
 
+function findTickPos(val) {
+  const t = typeof val;
+  const match = bookData.find(d => {
+    if (t === 'number') return d[currentSlug] === val;
+    return d[currentSlug].toLowerCase().startsWith(val);
+  });
+  if (match) {
+    return $book.filter(d => d.Title === match.Title).style('top');
+  }
+  return null;
+}
+
+function updateScale() {
+  const alpha = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  const year = d3.range(MIN_YEAR, MAX_YEAR, 10);
+
+  const scaleVals = {
+    TitleClean: alpha,
+    PubYear: year,
+    AuthroClean: alpha,
+  };
+
+  const values = scaleVals[currentSlug];
+
+  const data = values
+    .map(d => ({
+      val: d,
+      top: findTickPos(d),
+    }))
+    .filter(d => d.top);
+
+  $graphicScale
+    .selectAll('.tick')
+    .data(data, d => d.val)
+    .join(enter => enter.append('p'), update => update, exit => exit.remove())
+    .text(d => d.val)
+    .style('top', d => d.top);
+}
+
 function resizeFit() {
   const h = [];
   $book.each((d, i, n) => h.push(n[i].offsetHeight));
@@ -205,10 +246,12 @@ function resize() {
   stack(true);
   resizeFit();
   resizeLocator();
+  updateScale();
   updateScroll();
 }
 
 function sortData(slug) {
+  currentSlug = slug;
   if (slug === 'AuthorClean')
     rawData.sort((a, b) => {
       const authorA = a.AuthorClean[0].last;
@@ -227,6 +270,7 @@ function handleSort() {
   sel.classed('is-active', true);
   // filters.keyword = !filters.keyword;
   stack();
+  updateScale();
 }
 
 function updateScroll() {
@@ -288,6 +332,7 @@ function handleSlide(value) {
   const [start, end] = value;
   filters.years = [+start, +end];
   stack();
+  updateScale();
 }
 
 function setupSlider() {
