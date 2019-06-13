@@ -26,11 +26,13 @@ function parseName(str) {
 function clean(data) {
   return data.map(d => ({
     ...d,
+    TitleClean: d.TitleClean.trim(),
+    Subtitle: d.Subtitle.trim(),
     AuthorClean: parseName(d.AuthorClean),
     AuthorMore: parseName(d.AuthorMore),
     GoodreadsRating: +d.GoodreadsRating,
     GoodreadsReviews: +d.GoodreadsReviews,
-    PubYear: +d.PubYear,
+    PubYear: +d.PubYear.trim(),
   }));
 }
 
