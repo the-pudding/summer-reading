@@ -372,12 +372,11 @@ function setupFigures() {
 function checkFontsReady() {
   fontCheckCount += 1;
   const notReady = FONTS.find(d => !$html.classed(`loaded-${d}`));
-  if (false) {
+  if (!notReady) {
     fontsReady = true;
     if (setupComplete) resizeFit();
   } else if (fontCheckCount < 50) d3.timeout(checkFontsReady, 200);
   else {
-    console.log('fallback');
     fallbackFont = true;
     fontsReady = true;
     if (setupComplete) resizeFit();
