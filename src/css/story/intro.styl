@@ -56,16 +56,18 @@
 
 //// Ribbon Header
 .intro__hed-hipster
-	font-size 70px
+	font-size 50px
 	text-transform uppercase
 	color $secondary
 	text-align center
 	margin 0
 	font-family $vast
 	line-height: 1
+	+mq('bp-4')
+		font-size 70px
 
 .intro__hed-ribbon
-	set-type-size('xxx-large')
+	set-type-size('x-large')
 	width 75%
 	position relative
 	background $secondary
@@ -75,6 +77,8 @@
 	margin 1rem auto 1rem
 	font-family $national-narrow
 	text-transform uppercase
+	+mq('bp-4')
+		set-type-size('xxx-large')
 	&:before, &:after
 		content ''
 		position absolute
