@@ -255,7 +255,23 @@ function setupUIEnter() {
       $toggle.classed('is-visible', false);
     },
     offset: 0.67,
-    // once: true,
+  });
+
+  EnterView({
+    selector: '#outro',
+    enter: () => {
+      $sidebar.classed('is-visible', false);
+      $mini.classed('is-visible', false);
+      $toggle.classed('is-visible', false);
+    },
+    exit: () => {
+      if (windowW >= EV_BREAKPOINT) {
+        $sidebar.classed('is-visible', true);
+        $toggle.classed('is-visible', true);
+      }
+      $mini.classed('is-visible', true);
+    },
+    offset: 0,
   });
 }
 
@@ -353,7 +369,7 @@ function checkFontsReady() {
   if (!notReady) {
     fontsReady = true;
     if (setupComplete) resizeFit();
-  } else if (fontCheckCount < 30) d3.timeout(checkFontsReady, 200);
+  } else if (fontCheckCount < 50) d3.timeout(checkFontsReady, 200);
   else {
     // TODO fallback
   }
