@@ -1,26 +1,15 @@
 header
-	z-index set-index('overlay')
+	z-index set-index('top')
 	position absolute
 	top 0
 	left 0
 	width 100%
 	font-family $sans
 
-	a.logo
-		display block
-		border none
-		max-width 9rem
-		margin 1rem auto
-
-		svg
-			fill $off-black
-			display block
-			width 100%
-
 header.is-sticky
-	position absolute
+	position fixed
 	transform translate3d(0,0,0)
-	overflow hidden
+	// overflow hidden
 	display flex
 	align-items center
 
