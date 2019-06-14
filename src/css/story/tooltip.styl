@@ -50,20 +50,25 @@
     display flex
     background-image url('assets/images/coffee_flatlay.png')
     background-size cover
+    position relative
     .tooltip__img-desktop
-      width auto
-    .tooltip__meta
-      padding 0 1rem
-      font-family $national-narrow
-      &-title
-        text-transform uppercase
-        font-weight bold
-        set-type-size('xx-large')
-        margin 0
-      &-author
-        set-type-size('medium')
-        margin 0
-      &-desc
-        set-type-size('small')
-      a, .tooltip__library
-        set-type-size('small')
+      width 131px
+      clip-path url(#coverClip)
+      position absolute
+      height 200px
+      transform translate(270px, 104px) rotate(-2deg)
+    // .tooltip__meta
+    //   padding 0 1rem
+    //   font-family $national-narrow
+    //   &-title
+    //     text-transform uppercase
+    //     font-weight bold
+    //     set-type-size('xx-large')
+    //     margin 0
+    //   &-author
+    //     set-type-size('medium')
+    //     margin 0
+    //   &-desc
+    //     set-type-size('small')
+    //   a, .tooltip__library
+    //     set-type-size('small')
