@@ -69,7 +69,7 @@
 			border-top 2px dashed darken($bg, 10)
 			p
 				margin 0
-				padding 0.5rem 1rem
+				padding 0.5rem
 				set-type-size(x-large, false)
 				line-height 1
 				text-transform uppercase
@@ -77,4 +77,9 @@
 				// font-weight 700
 				color darken($bg, 36)
 				display inline-block
-				max-width 10rem
+				transform rotate(90deg) translateY(-100%)
+				transform-origin 0 0
+				+mq('bp-4')
+					transform none
+					padding 0.5rem 1rem
+					max-width 10rem

@@ -12,7 +12,7 @@ header.is-sticky
 	// overflow hidden
 	display flex
 	align-items center
-
+	
 	a.logo
 		margin 0 auto
 
@@ -27,6 +27,7 @@ header.is-sticky
 		z-index set-index(overlay)
 		border none
 		background-color transparent
+		opacity 1
 		svg
 			stroke $off-black
 
@@ -36,11 +37,13 @@ header.is-sticky
 			&:last-of-type
 				display none
 
-		&.is-visible span
-			&:first-of-type
-				display none
-			&:last-of-type
-				display block
+		&.is-visible
+			opacity 1
+			span
+				&:first-of-type
+					display none
+				&:last-of-type
+					display block
 
 			svg
 				stroke $off-white

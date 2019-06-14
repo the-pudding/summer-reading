@@ -22,15 +22,16 @@ const $tooltipClose = $tooltip.select('.tooltip__close');
 const $locator = $miniGraphic.select('.graphic__locator');
 const $graphicEl = $graphic.node();
 const $graphicScale = $graphic.select('.graphic__scale');
+const $headerToggle = d3.select('.header__toggle');
 
 let $book = null;
 let $bookM = null;
 
-const REM = 16;
+const MAX_BOOK_WIDTH = 560;
 const MAX_YEAR = 2010;
 const MIN_YEAR = 1880;
 const FONTS = ['vast', 'righteous', 'unica', 'abril', 'quintessential'];
-const EV_BREAKPOINT = 900;
+const EV_BREAKPOINT = 960;
 
 const scaleColor = d3
   .scaleQuantize()
@@ -55,22 +56,30 @@ let maxBookW = 0;
 let sidebarW = 0;
 let obscureScale = null;
 let miniH = 0;
+let mobile = false;
 
 function generateRandomFont() {
   return FONTS[Math.floor(Math.random() * FONTS.length)];
 }
 
 function setSizes() {
-  const pad = REM * 2;
+  // const pad = REM * 4;
   const ratio = 1 / 6;
   const pageH = window.innerHeight;
   const miniGraphicW = $miniGraphic.node().offsetWidth;
-  const baseW = sidebarW + miniGraphicW - pad;
-  const baseH = baseW * ratio;
+  let baseW = Math.min(
+    MAX_BOOK_WIDTH,
+    windowW - (mobile ? 0 : (sidebarW + miniGraphicW) * 2)
+  );
 
+  baseW *= 0.67;
+
+  const baseH = baseW * ratio;
   const sizes = d3.range(numBooks).map(() => {
-    const w = Math.floor(baseW + Math.random() * baseW * 0.25);
-    const h = Math.floor(baseH + Math.random() * baseH * 0.33);
+    const w = Math.floor(
+      baseW + Math.random() * baseW * (mobile ? 0.125 : 0.25)
+    );
+    const h = Math.floor(baseH + Math.random() * baseH * (mobile ? 0.4 : 0.35));
     return { width: w, height: h };
   });
 
@@ -201,6 +210,7 @@ function updateScroll() {
   const progress = Math.min(1, Math.max(0, 1 - bottom / height));
   const percent = d3.format('%')(progress);
   $locator.style('top', percent);
+  if (mobile) $headerToggle.classed('is-visible', window.scrollY);
 }
 
 function updateScale() {
@@ -239,14 +249,14 @@ function updateScale() {
     .style('top', d => `${d.top}px`)
     .select('p')
     .text(d => d.val)
-    .style('margin-left', `${sidebarW}px`);
+    .style('margin-left', `${mobile ? 0 : sidebarW}px`);
 }
 
 function resizeFit() {
   const h = [];
   $book.each((d, i, n) => h.push(n[i].offsetHeight));
   const maxSize = d3.min(h) / 2;
-  const minSize = 16;
+  const minSize = mobile ? 12 : 16;
   if (fontsReady) {
     Fitty('.book__title', {
       minSize,
@@ -272,6 +282,7 @@ function resize() {
   windowW = $main.node().offsetWidth;
   windowH = window.innerHeight;
   sidebarW = $sidebar.node().offsetWidth;
+  mobile = windowW < EV_BREAKPOINT;
   setSizes();
   stack(true);
   resizeFit();
@@ -320,7 +331,7 @@ function setupUIEnter() {
   EnterView({
     selector: '#graphic',
     enter: () => {
-      if (windowW >= EV_BREAKPOINT) {
+      if (!mobile) {
         $sidebar.classed('is-visible', true);
         $toggle.classed('is-visible', true);
       }
@@ -342,7 +353,7 @@ function setupUIEnter() {
       $toggle.classed('is-visible', false);
     },
     exit: () => {
-      if (windowW >= EV_BREAKPOINT) {
+      if (!mobile) {
         $sidebar.classed('is-visible', true);
         $toggle.classed('is-visible', true);
       }
