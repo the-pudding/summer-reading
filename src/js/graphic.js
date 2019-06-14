@@ -47,8 +47,8 @@ let fallbackFont = false;
 let setupComplete = false;
 let fontCheckCount = 0;
 let scrollTick = false;
-let windowW = 0;
-let windowH = 0;
+let windowW = $main.node().offsetWidth;
+let windowH = window.innerHeight;
 let currentSlug = null;
 let maxBookW = 0;
 let sidebarW = 0;
@@ -441,8 +441,6 @@ function checkFontsReady() {
 }
 
 function setupSidebarDrawer() {
-  $sidebar.classed('is-visible', false);
-
   $toggle.on('click', () => {
     const visible = $sidebar.classed('is-visible');
     $sidebar.classed('is-visible', !visible);
@@ -475,10 +473,10 @@ function init() {
     setupObscure();
     setupFirstSlug();
     setupFigures();
-    setupUI();
     setupLocator();
     setupSidebarDrawer();
     resize();
+    setupUI();
     setupComplete = true;
   });
 }
