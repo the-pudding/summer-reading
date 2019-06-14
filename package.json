@@ -13,6 +13,7 @@
 		"fitty": "^2.2.6",
 		"fontfaceobserver": "2.1.0",
 		"lodash.debounce": "4.0.8",
+		"moveto": "1.8.1",
 		"nouislider": "13.1.5",
 		"rimraf": "2.6.3",
 		"superagent": "5.0.5"

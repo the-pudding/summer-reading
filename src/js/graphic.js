@@ -1,6 +1,7 @@
 /* global d3 window.requestAnimationFrame window.innerHeight */
 import Fitty from 'fitty';
 import EnterView from 'enter-view';
+import MoveTo from 'moveto';
 import noUiSlider from 'nouislider';
 import COLORS from './colors';
 import loadData from './load-data';
@@ -53,6 +54,7 @@ let currentSlug = null;
 let maxBookW = 0;
 let sidebarW = 0;
 let obscureScale = null;
+let miniH = 0;
 
 function generateRandomFont() {
   return FONTS[Math.floor(Math.random() * FONTS.length)];
@@ -80,7 +82,7 @@ function setSizes() {
 
   const miniContainerH = pageH - $miniTitle.node().offsetHeight;
 
-  const miniH = Math.max(1, Math.floor(miniContainerH / numBooks));
+  miniH = Math.max(1, Math.floor(miniContainerH / numBooks));
   maxBookW = d3.max(sizes, d => d.width);
   miniRatio = maxBookW / (miniGraphicW * 0.2);
 
@@ -283,6 +285,14 @@ function sortData(slug) {
   rawData.sort((a, b) => d3.ascending(a[slug], b[slug]));
 }
 
+function handleMiniClick() {
+  const [x, y] = d3.mouse(this);
+  const index = Math.floor(y / miniH);
+  const el = $book.filter((d, i) => i === index).node();
+  const mt = new MoveTo();
+  mt.move(el);
+}
+
 function handleSort() {
   const sel = d3.select(this);
   const slug = sel.attr('data-slug');
@@ -372,10 +382,15 @@ function setupSlider() {
   slider.on('change', handleSlide);
 }
 
+function setupMiniClick() {
+  $miniGraphic.on('click', handleMiniClick);
+}
+
 function setupUI() {
   setupSort();
-  setupUIEnter();
   setupSlider();
+  setupUIEnter();
+  setupMiniClick();
 }
 
 function openTooltip(d) {
