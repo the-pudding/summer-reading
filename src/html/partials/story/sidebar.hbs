@@ -15,7 +15,9 @@
   <div class='nav__sort'>
     <h4>{{doc.navSortTitle}}</h4>
     {{#each doc.sortButtons}}
-      <button class='nav__sort-button {{class}}' data-slug={{slug}}>{{text}}</button>
+      <button class='nav__sort-button {{class}}' data-slug={{slug}} data-desc='{{description}}'>{{text}}</button>
     {{/each}}
   </div>
+
+	<p class='nav__desc'></p>
 </aside>

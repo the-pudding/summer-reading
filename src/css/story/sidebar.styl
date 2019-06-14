@@ -13,6 +13,7 @@
 	&.is-visible
 		transform translateX(0)
 		transition transform 250ms ease-in-out
+	
 	.sidebar__hed
 		set-type-size(small, false)
 		line-height 1
@@ -23,16 +24,19 @@
 		padding-bottom 1rem
 		font-weight 600
 		max-width 9rem
+	
 	.nav__slider
 		margin-right 1rem
 		margin-left 0.5rem
 		margin-top 1rem
 		margin-bottom 3rem
+	
 	h4
 		font-family $sans-display
 		set-type-size('medium')
 		text-transform uppercase
 		margin 0
+	
 	.nav__sort-button
 		font-family $sans-display
 		padding 0.25rem 0.5rem
@@ -46,6 +50,14 @@
 			background darken($bg, 20)
 		&.is-active
 			background darken($bg, 20)
+
+	.nav__desc
+		font-family $sans-display
+		margin-top 0.5rem
+		color $primary
+		set-type-size('small', false)
+		line-height 1.2
+		
 .sidebar__drawer
 	cursor pointer
 	pointer-events: all

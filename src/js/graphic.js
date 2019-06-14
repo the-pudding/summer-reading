@@ -17,6 +17,7 @@ const $miniTitle = $mini.select('.minimap__hed');
 const $miniCount = $miniTitle.select('span');
 const $slider = $sidebar.select('.slider');
 const $sortButton = $sidebar.selectAll('.nav__sort-button');
+const $sortDesc = $sidebar.selectAll('.nav__desc');
 const $tooltip = d3.select('#tooltip');
 const $tooltipClose = $tooltip.select('.tooltip__close');
 const $locator = $miniGraphic.select('.graphic__locator');
@@ -134,24 +135,27 @@ function stackBook({ graphic, book, posX, jump }) {
     sel.each((d, i, n) => {
       posY.push(tally);
       tally += n[i].offsetHeight;
-      d.wasEnter = !!d3.select(n[i]).attr('data-enter');
+      d.wasEnter = d3.select(n[i]).attr('data-enter') === 'true';
     });
 
     sel.style('left', (d, i, n) => {
       const $b = d3.select(n[i]);
-      const isEnter = $b.attr('data-enter');
+      const isEnter = $b.attr('data-enter') === 'true';
       return isEnter ? `${-offX}px` : $b.style('left');
     });
 
     sel
-      .attr('data-enter', null)
+      .attr('data-enter', 'false')
       .attr('data-y', (d, i) => posY[i])
+      .attr('data-i', (d, i) => i)
       .transition()
       .duration(duration)
       .delay((d, i) => (jump ? 0 : 250 + (d.wasEnter ? count * 2 : 0) + i * 2))
       .ease(d3.easeCubicInOut)
       .style('top', (d, i) => `${posY[i]}px`)
       .style('left', (d, i) => `${centerX + posX[i] / factor}px`);
+
+    return sel;
   };
 
   const exit = sel => {
@@ -165,6 +169,9 @@ function stackBook({ graphic, book, posX, jump }) {
   };
 
   book.data(bookData, d => d.BibNum).join(enter, update, exit);
+
+  // if (isMini) $bookM = newSel;
+  // else $book = newSel;
 
   graphic.style('height', `${tally}px`);
 
@@ -199,8 +206,10 @@ function findTickPos(val, index) {
       if (t === 'number') return d[currentSlug] === val;
       return d[currentSlug].toLowerCase().startsWith(val);
     });
-    if (match)
-      return $book.filter(d => d.BibNum === match.BibNum).attr('data-y');
+    if (match) {
+      const $f = $book.filter(d => d.BibNum === match.BibNum);
+      if ($f.size()) return $f.attr('data-y');
+    }
   }
 
   return null;
@@ -301,7 +310,7 @@ function sortData(slug) {
 function handleMiniClick() {
   const [x, y] = d3.mouse(this);
   const index = Math.floor(y / miniH);
-  const el = $book.filter((d, i) => i === index).node();
+  const el = $graphic.select(`[data-i='${index}'][data-enter='false']`).node();
   const mt = new MoveTo();
   mt.move(el);
 }
@@ -309,6 +318,9 @@ function handleMiniClick() {
 function handleSort() {
   const sel = d3.select(this);
   const slug = sel.attr('data-slug');
+  const desc = sel.attr('data-desc');
+  $sortDesc.text(desc);
+
   sortData(slug);
 
   $sortButton.classed('is-active', false);
@@ -478,9 +490,12 @@ function setupLocator() {
 }
 
 function setupFirstSlug() {
-  currentSlug = $sortButton
-    .filter((d, i, n) => d3.select(n[i]).classed('is-active'))
-    .attr('data-slug');
+  const $f = $sortButton.filter((d, i, n) =>
+    d3.select(n[i]).classed('is-active')
+  );
+  currentSlug = $f.attr('data-slug');
+  const desc = $f.attr('data-desc');
+  $sortDesc.text(desc);
 }
 
 function setupObscure() {
