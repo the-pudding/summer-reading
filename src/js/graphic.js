@@ -164,7 +164,7 @@ function stackBook({ graphic, book, posX, jump }) {
       .style('left', `${offX}px`);
   };
 
-  book.data(bookData, d => d.Title).join(enter, update, exit);
+  book.data(bookData, d => d.BibNum).join(enter, update, exit);
 
   graphic.style('height', `${tally}px`);
 
@@ -191,14 +191,16 @@ function stack(jump) {
 function findTickPos(val, index) {
   if (currentSlug === 'GoodreadsReviews') {
     const match = bookData.find(d => d[currentSlug] >= obscureScale[index]);
-    if (match) return $book.filter(d => d.Title === match.Title).attr('data-y');
+    if (match)
+      return $book.filter(d => d.BibNum === match.BibNum).attr('data-y');
   } else {
     const t = typeof val;
     const match = bookData.find(d => {
       if (t === 'number') return d[currentSlug] === val;
       return d[currentSlug].toLowerCase().startsWith(val);
     });
-    if (match) return $book.filter(d => d.Title === match.Title).attr('data-y');
+    if (match)
+      return $book.filter(d => d.BibNum === match.BibNum).attr('data-y');
   }
 
   return null;
@@ -428,17 +430,14 @@ function setupFigures() {
 
   $book = $graphic
     .selectAll('.book')
-    .data(bookData, d => d.Title)
+    .data(bookData, d => d.BibNum)
     .join('div')
     .attr('class', 'book')
     .style('background-color', d => scaleColor(d.PubYear));
 
   $bookM = $miniGraphic
     .selectAll('.book')
-    .data(bookData, d => {
-      //  console.log(d)
-      return d.Title;
-    })
+    .data(bookData, d => d.BibNum)
     .join('div')
     .attr('class', 'book book--mini')
     .style('background-color', d => scaleColor(d.PubYear));

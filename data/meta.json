@@ -1,17 +1,22 @@
 {
-	"title": "Title Case Hed Goes Here",
-	"description": "Sentence case dek goes down here. Modify these in data/meta.json.",
+	"title": "Hipster Summer Reading List 2019",
+	"description": "An artisanal guide to obscure books based on 100 million checkout records.",
 	"site": "https://pudding.cool",
 	"siteName": "The Pudding",
-	"url": "https://pudding.cool/year/month/name/",
-	"keywords": "tk",
-	"imgFacebook": "https://pudding.cool/year/month/name/assets/social/social-facebook.jpg",
-	"imgTwitter": "https://pudding.cool/year/month/name/assets/social/social-twitter.jpg",
+	"url": "https://pudding.cool/2019/06/summer-reading/",
+	"keywords": "library, books, summer, reading, guide, interactive, suggestion",
+	"imgFacebook": "https://pudding.cool/2019/06/summer-reading/assets/social/social-facebook.jpg",
+	"imgTwitter": "https://pudding.cool/2019/06/summer-reading/assets/social/social-twitter.jpg",
 	"author": {
 		"name": "The Pudding",
-		"url": "https://pudding.cool/author/the-pudding-team",
-		"twitterHandle": "@puddingviz"
+		"url": "https://pudding.cool/author/russell-goldenberg",
+		"twitterHandle": "@codenberg"
 	},
-	"analytics": "",
+	"author2": {
+		"name": "The Pudding",
+		"url": "https://pudding.cool/author/amber-thomas",
+		"twitterHandle": "@ProQuesAsker"
+	},
+	"analytics": "UA-90567923-1",
 	"lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis mollis neque sit amet sollicitudin vehicula. Maecenas fringilla mi non lacus mattis elementum. Curabitur dignissim faucibus justo."
 }
