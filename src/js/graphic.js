@@ -15,11 +15,12 @@ const $miniGraphic = $mini.select('.minimap__graphic');
 const $miniTitle = $mini.select('.minimap__hed');
 const $miniCount = $miniTitle.select('span');
 const $slider = $sidebar.select('.slider');
-const $buttons = $sidebar.selectAll('.nav__sort-button');
+const $sortButton = $sidebar.selectAll('.nav__sort-button');
 const $tooltip = d3.select('#tooltip');
 const $tooltipClose = $tooltip.select('.tooltip__close');
 const $locator = $miniGraphic.select('.graphic__locator');
 const $graphicEl = $graphic.node();
+const $graphicScale = $graphic.select('.graphic__scale');
 
 let $book = null;
 let $bookM = null;
@@ -47,6 +48,10 @@ let setupComplete = false;
 let fontCheckCount = 0;
 let scrollTick = false;
 let windowW = 0;
+let windowH = 0;
+let currentSlug = null;
+let maxBookW = 0;
+let sidebarW = 0;
 
 function generateRandomFont() {
   return FONTS[Math.floor(Math.random() * FONTS.length)];
@@ -56,7 +61,6 @@ function setSizes() {
   const pad = REM * 2;
   const ratio = 1 / 6;
   const pageH = window.innerHeight;
-  const sidebarW = $sidebar.node().offsetWidth;
   const miniGraphicW = $miniGraphic.node().offsetWidth;
   const baseW = sidebarW + miniGraphicW - pad;
   const baseH = baseW * ratio;
@@ -76,7 +80,7 @@ function setSizes() {
   const miniContainerH = pageH - $miniTitle.node().offsetHeight;
 
   const miniH = Math.max(1, Math.floor(miniContainerH / numBooks));
-  const maxBookW = d3.max(sizes, d => d.width);
+  maxBookW = d3.max(sizes, d => d.width);
   miniRatio = maxBookW / (miniGraphicW * 0.2);
 
   $bookM.each((d, i, n) => {
@@ -129,6 +133,7 @@ function stackBook({ graphic, book, posX, jump }) {
 
     sel
       .attr('data-enter', null)
+      .attr('data-y', (d, i) => posY[i])
       .transition()
       .duration(duration)
       .delay((d, i) => (jump ? 0 : 250 + (d.wasEnter ? count * 2 : 0) + i * 2))
@@ -171,6 +176,64 @@ function stack(jump) {
   stackBook({ graphic: $miniGraphic, book: $bookM, posX, jump });
 }
 
+function findTickPos(val) {
+  const t = typeof val;
+  const match = bookData.find(d => {
+    if (t === 'number') return d[currentSlug] === val;
+    return d[currentSlug].toLowerCase().startsWith(val);
+  });
+  if (match) {
+    return $book.filter(d => d.Title === match.Title).attr('data-y');
+  }
+  return null;
+}
+
+function updateScroll() {
+  scrollTick = false;
+  const { bottom, height } = $graphicEl.getBoundingClientRect();
+  const progress = Math.min(1, Math.max(0, 1 - bottom / height));
+  const percent = d3.format('%')(progress);
+  $locator.style('top', percent);
+}
+
+function updateScale() {
+  const alpha = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  const year = d3.range(MIN_YEAR, MAX_YEAR, 10);
+
+  const scaleVals = {
+    TitleClean: alpha,
+    PubYear: year,
+    AuthroClean: alpha,
+  };
+
+  const values = scaleVals[currentSlug];
+
+  const data = values
+    .map(d => ({
+      val: d,
+      top: findTickPos(d),
+    }))
+    .filter(d => d.top);
+
+  $graphicScale
+    .selectAll('.tick')
+    .data(data, d => d.val)
+    .join(
+      enter => {
+        const $tick = enter.append('div').attr('class', 'tick');
+
+        $tick.append('p');
+        return $tick;
+      },
+      update => update,
+      exit => exit.remove()
+    )
+    .style('top', d => `${d.top}px`)
+    .select('p')
+    .text(d => d.val)
+    .style('margin-left', `${sidebarW}px`);
+}
+
 function resizeFit() {
   const h = [];
   $book.each((d, i, n) => h.push(n[i].offsetHeight));
@@ -180,7 +243,6 @@ function resizeFit() {
     Fitty('.book__title', {
       minSize,
       maxSize,
-      // multiLine: false,
     });
     $book
       .select('.book__title')
@@ -193,29 +255,26 @@ function resizeFit() {
 }
 
 function resizeLocator() {
-  const gH = $miniGraphic.node().offsetHeight;
-  const h = Math.floor((gH / h) * gH);
-  $locator.style('height', `${h}px`);
+  const gH = $graphic.node().offsetHeight;
+  const percent = d3.format('%')(windowH / gH);
+  $locator.style('height', percent);
 }
 
 function resize() {
-  // windowH = window.innerHeight;
   windowW = $main.node().offsetWidth;
+  windowH = window.innerHeight;
+  sidebarW = $sidebar.node().offsetWidth;
   setSizes();
   stack(true);
   resizeFit();
   resizeLocator();
   updateScroll();
+  updateScale();
 }
 
 function sortData(slug) {
-  if (slug === 'AuthorClean')
-    rawData.sort((a, b) => {
-      const authorA = a.AuthorClean[0].last;
-      const authorB = b.AuthorClean[0].last;
-      return d3.ascending(authorA, authorB);
-    });
-  else rawData.sort((a, b) => d3.ascending(a[slug], b[slug]));
+  currentSlug = slug;
+  rawData.sort((a, b) => d3.ascending(a[slug], b[slug]));
 }
 
 function handleSort() {
@@ -223,18 +282,11 @@ function handleSort() {
   const slug = sel.attr('data-slug');
   sortData(slug);
 
-  $buttons.classed('is-active', false);
+  $sortButton.classed('is-active', false);
   sel.classed('is-active', true);
-  // filters.keyword = !filters.keyword;
-  stack();
-}
 
-function updateScroll() {
-  scrollTick = false;
-  const { bottom, height } = $graphicEl.getBoundingClientRect();
-  const progress = Math.min(1, Math.max(0, 1 - bottom / height));
-  const percent = d3.format('%')(progress);
-  $locator.style('top', percent);
+  stack();
+  updateScale();
 }
 
 function handleScroll() {
@@ -245,7 +297,7 @@ function handleScroll() {
 }
 
 function setupSort() {
-  $buttons.on('click', handleSort);
+  $sortButton.on('click', handleSort);
 }
 
 function setupUIEnter() {
@@ -288,6 +340,7 @@ function handleSlide(value) {
   const [start, end] = value;
   filters.years = [+start, +end];
   stack();
+  updateScale();
 }
 
 function setupSlider() {
@@ -321,7 +374,6 @@ function setupUI() {
 
 function openTooltip(d) {
   $tooltip.classed('is-active', true);
-  console.log({ d });
 
   const img = $tooltip.selectAll('img').attr('src', d.ImageUrl);
   $tooltip.select('.tooltip__meta-title').text(d.TitleClean);
@@ -396,11 +448,18 @@ function setupLocator() {
   window.addEventListener('scroll', handleScroll, true);
 }
 
+function setupFirstSlug() {
+  currentSlug = $sortButton
+    .filter((d, i, n) => d3.select(n[i]).classed('is-active'))
+    .attr('data-slug');
+}
+
 function init() {
   checkFontsReady();
   loadData().then(data => {
     rawData = data;
     bookData = rawData;
+    setupFirstSlug();
     setupFigures();
     setupUI();
     setupLocator();
