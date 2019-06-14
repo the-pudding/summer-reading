@@ -30,44 +30,58 @@
       background-color: $white
       //border: 1px solid $secondary
       align-self flex-end
-      transform translate(-30px, -275px)
+      transform translate(324px, -453px)
       border-radius 50%
       position relative
       display flex
       align-items: center;
       justify-content: center
       transition 300ms ease
-      +mq('bp-3')
+      z-index 50
+      +mq('bp-4')
         transform translate(714px, -453px)
-        z-index 50
+
 
 
   .tooltip__contents
-    width 700px
-    height 470px
+    width 315px
+    height 475px
     background: $bg
     border 10px solid $white
     padding 2rem 2rem
     display flex
-    background-image url('assets/images/coffee_flatlay.png')
+    background-image url('assets/images/coffee_flatlay_mobile.png')
     background-size cover
     position relative
+    overflow: hidden
+    +mq('bp-4')
+      background-image url('assets/images/coffee_flatlay.png')
+      width 700px
+      height 470px
     .tooltip__img-desktop
-      width 138px
       clip-path url(#coverClip)
       position absolute
-      height 205px
-      transform translate(288px, 113px) rotate(-1deg)
+      width 109px
+      height 143px
+      transform translate(167px, 22px) rotate(-16deg)
       filter saturate(50%)
+      +mq('bp-4')
+        width 138px
+        height 205px
+        transform translate(288px, 113px) rotate(-1deg)
     .tooltip__meta
-      height 200px
-      width 185px
       padding 0 1rem
       font-family $shadow
       overflow hidden
       position absolute
-      transform translate(6px, 182px)
+      transform translate(-32px, 194px)
+      height 200px
+      width 185px
       color $primary
+      +mq('bp-4')
+        transform translate(6px, 182px)
+        height 200px
+        width 185px
       &-title
         set-type-size('large')
         margin 0
@@ -79,12 +93,14 @@
         set-type-size('small')
         margin-top 0.5rem
     .tooltip__library
-      set-type-size('medium')
+      set-type-size('small')
       position absolute
-      width 90px
+      width 70px
       text-align center
       font-family $shadow
       color $primary
       border-bottom none
-      transform translate(537px, 321px) rotate(13deg)
+      transform translate(170px, 334px) rotate(25deg)
       line-height 1.2
+      +mq('bp-4')
+        transform translate(537px, 321px) rotate(13deg)
