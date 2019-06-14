@@ -52,6 +52,7 @@ let windowH = 0;
 let currentSlug = null;
 let maxBookW = 0;
 let sidebarW = 0;
+let obscureScale = null;
 
 function generateRandomFont() {
   return FONTS[Math.floor(Math.random() * FONTS.length)];
@@ -176,15 +177,19 @@ function stack(jump) {
   stackBook({ graphic: $miniGraphic, book: $bookM, posX, jump });
 }
 
-function findTickPos(val) {
-  const t = typeof val;
-  const match = bookData.find(d => {
-    if (t === 'number') return d[currentSlug] === val;
-    return d[currentSlug].toLowerCase().startsWith(val);
-  });
-  if (match) {
-    return $book.filter(d => d.Title === match.Title).attr('data-y');
+function findTickPos(val, index) {
+  if (currentSlug === 'GoodreadsReviews') {
+    const match = bookData.find(d => d[currentSlug] >= obscureScale[index]);
+    if (match) return $book.filter(d => d.Title === match.Title).attr('data-y');
+  } else {
+    const t = typeof val;
+    const match = bookData.find(d => {
+      if (t === 'number') return d[currentSlug] === val;
+      return d[currentSlug].toLowerCase().startsWith(val);
+    });
+    if (match) return $book.filter(d => d.Title === match.Title).attr('data-y');
   }
+
   return null;
 }
 
@@ -199,19 +204,20 @@ function updateScroll() {
 function updateScale() {
   const alpha = 'abcdefghijklmnopqrstuvwxyz'.split('');
   const year = d3.range(MIN_YEAR, MAX_YEAR, 10);
+  const obscure = ['recherché', 'mildly esoteric', 'almost ordinary'];
 
   const scaleVals = {
     TitleClean: alpha,
     PubYear: year,
-    AuthroClean: alpha,
+    GoodreadsReviews: obscure,
   };
 
   const values = scaleVals[currentSlug];
 
   const data = values
-    .map(d => ({
+    .map((d, i) => ({
       val: d,
-      top: findTickPos(d),
+      top: findTickPos(d, i),
     }))
     .filter(d => d.top);
 
@@ -454,11 +460,19 @@ function setupFirstSlug() {
     .attr('data-slug');
 }
 
+function setupObscure() {
+  const data = bookData.map(d => d.GoodreadsReviews).filter(d => d > 0);
+  const max = d3.max(data);
+  // TODO quantiles?
+  obscureScale = [0, Math.floor(max * 0.33), Math.floor(max * 0.67)];
+}
+
 function init() {
   checkFontsReady();
   loadData().then(data => {
     rawData = data;
     bookData = rawData;
+    setupObscure();
     setupFirstSlug();
     setupFigures();
     setupUI();
