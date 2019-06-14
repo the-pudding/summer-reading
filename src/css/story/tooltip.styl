@@ -30,7 +30,7 @@
       background-color: $white
       //border: 1px solid $secondary
       align-self flex-end
-      transform translate(5px, -275px)
+      transform translate(-30px, -275px)
       border-radius 50%
       position relative
       display flex
@@ -38,12 +38,13 @@
       justify-content: center
       transition 300ms ease
       +mq('bp-3')
-        transform translate(685px, -430px)
+        transform translate(714px, -453px)
+        z-index 50
 
 
   .tooltip__contents
-    width 670px
-    height 450px
+    width 700px
+    height 470px
     background: $bg
     border 10px solid $white
     padding 2rem 2rem
@@ -52,23 +53,37 @@
     background-size cover
     position relative
     .tooltip__img-desktop
-      width 131px
+      width 138px
       clip-path url(#coverClip)
       position absolute
+      height 205px
+      transform translate(288px, 113px) rotate(-1deg)
+    .tooltip__meta
       height 200px
-      transform translate(270px, 104px) rotate(-2deg)
-    // .tooltip__meta
-    //   padding 0 1rem
-    //   font-family $national-narrow
-    //   &-title
-    //     text-transform uppercase
-    //     font-weight bold
-    //     set-type-size('xx-large')
-    //     margin 0
-    //   &-author
-    //     set-type-size('medium')
-    //     margin 0
-    //   &-desc
-    //     set-type-size('small')
-    //   a, .tooltip__library
-    //     set-type-size('small')
+      width 185px
+      padding 0 1rem
+      font-family $shadow
+      overflow hidden
+      position absolute
+      transform translate(6px, 182px)
+      color $primary
+      &-title
+        set-type-size('large')
+        margin 0
+        line-height 1.2
+      &-author
+        set-type-size('medium')
+        margin 0
+      &-desc
+        set-type-size('small')
+        margin-top 0.5rem
+    .tooltip__library
+      set-type-size('medium')
+      position absolute
+      width 90px
+      text-align center
+      font-family $shadow
+      color $primary
+      border-bottom none
+      transform translate(537px, 321px) rotate(13deg)
+      line-height 1.2
