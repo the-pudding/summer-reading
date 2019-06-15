@@ -41,7 +41,32 @@
 			bottom 0
 
 
-
+	.book__flourish
+		background-size contain
+		padding 1rem 0.5rem
+		background-repeat no-repeat
+		background-position: center;
+		background-origin content-box
+		opacity 0.7
+		&-0
+			order 0
+			//background-color red
+			width 50px
+			height 100%
+		&-1
+			order 2
+			//background-color blue
+			width 50px
+			height 100%
+	.book__title-container
+		order 1
+		//flex 1
+		display flex
+		align-items: center;
+		height 100%
+		&.is-flourished
+			border-left 1px solid $primary
+			border-right 1px double $primary
 	.book__title
 		opacity 0
 		text-align center
@@ -52,6 +77,9 @@
 		line-height 1.2
 		&.is-visible
 			opacity 1
+		&.is-flourished
+			border-top 1px solid $primary
+			border-bottom 1px solid $primary
 
 	.graphic__scale
 		position absolute

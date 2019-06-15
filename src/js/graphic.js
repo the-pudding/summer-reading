@@ -10,6 +10,7 @@ const $html = d3.select('html');
 const $main = d3.select('main');
 const $graphic = d3.select('#graphic');
 const $sidebar = d3.select('#sidebar');
+const $toggleCont = $sidebar.select('.sidebar__drawer')
 const $toggle = $sidebar.select('.drawer__toggle');
 const $mini = d3.select('#minimap');
 const $miniGraphic = $mini.select('.minimap__graphic');
@@ -33,6 +34,8 @@ const MAX_YEAR = 2010;
 const MIN_YEAR = 1880;
 const FONTS = ['vast', 'righteous', 'unica', 'abril', 'quintessential'];
 const EV_BREAKPOINT = 960;
+const FLOURISH_WIDTH = 100 // for both flourishes
+const FLOURISH_LOGOS = ['moustache', 'bicycle', 'deer', 'glasses', 'mug']
 
 const scaleColor = d3
   .scaleQuantize()
@@ -63,6 +66,10 @@ function generateRandomFont() {
   return FONTS[Math.floor(Math.random() * FONTS.length)];
 }
 
+function generateRandomLogo() {
+  return FLOURISH_LOGOS[Math.floor(Math.random() * FLOURISH_LOGOS.length)];
+}
+
 function setSizes() {
   // const pad = REM * 4;
   const ratio = 1 / 6;
@@ -86,8 +93,12 @@ function setSizes() {
 
   $book.each((d, i, n) => {
     const { width, height } = sizes[i];
-    d3.select(n[i]).style('width', `${width}px`);
-    d3.select(n[i]).style('height', `${height}px`);
+    const $thisBook = d3.select(n[i])
+    $thisBook.style('width', `${width}px`);
+    $thisBook.style('height', `${height}px`);
+    // set width of title to be total width - flourishes
+    $thisBook.select('.book__title-container')
+      .style('width', `${width - FLOURISH_WIDTH}px`)
   });
 
   const miniContainerH = pageH - $miniTitle.node().offsetHeight;
@@ -349,12 +360,14 @@ function setupUIEnter() {
         $sidebar.classed('is-visible', true);
         $toggle.classed('is-visible', true);
       }
+      $toggleCont.classed('is-visible', true)
       $mini.classed('is-visible', true);
     },
     exit: () => {
       $sidebar.classed('is-visible', false);
       $mini.classed('is-visible', false);
       $toggle.classed('is-visible', false);
+      $toggleCont.classed('is-visible', false)
     },
     offset: 0.67,
   });
@@ -365,6 +378,7 @@ function setupUIEnter() {
       $sidebar.classed('is-visible', false);
       $mini.classed('is-visible', false);
       $toggle.classed('is-visible', false);
+      $toggleCont.classed('is-visible', false)
     },
     exit: () => {
       if (!mobile) {
@@ -372,6 +386,7 @@ function setupUIEnter() {
         $toggle.classed('is-visible', true);
       }
       $mini.classed('is-visible', true);
+      $toggleCont.classed('is-visible', true)
     },
     offset: 0,
   });
@@ -454,13 +469,57 @@ function setupFigures() {
     .attr('class', 'book book--mini')
     .style('background-color', d => scaleColor(d.PubYear));
 
-  $book
+  const $titleContainer = $book
+    .append('div')
+    .attr('class', 'book__title-container')
+
+  $titleContainer
     .append('h4')
     .attr('class', 'book__title')
     .text(d => d.TitleClean);
 
+  $book
+    .selectAll('.book__flourish')
+    .data(d3.range(0, 2))
+    .join('div')
+    .attr('class', (d, i) => `book__flourish book__flourish-${i}`)
+
+  designFlourishes()
+
   $book.on('click', openTooltip);
   $tooltipClose.on('click', closeTooltip);
+}
+
+function designFlourishes(){
+  $book.each(function(d, i){
+    const sel = d3.select(this)
+    if (d.Flourish <= 0.2){sel.select('.book__flourish-0')
+      .classed('is-visible', true)
+      .style('background-image', d => {
+        const logo = generateRandomLogo()
+        return `url('assets/images/${logo}.png')`
+      })
+    }
+    if (d.Flourish > 0.2 && d.Flourish <= 0.4) {
+      sel.select('.book__flourish-1')
+        .classed('is-visible', true)
+        .style('background-image', d => {
+          const logo = generateRandomLogo()
+          return `url('assets/images/${logo}.png')`
+        })
+    }
+    if (d.Flourish > 0.4 && d.Flourish <= 0.6){
+      const width = Math.ceil(Math.random() * 3)
+      const styles = ['solid', 'double', 'dashed', 'dotted']
+      const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+       sel.select('.book__title-container')
+          .style('border-left', `${width}px ${randomStyle} #000`)
+          .style('border-right', `${width}px ${randomStyle} #000`)
+       //.classed('is-flourished', true)
+     }
+    //if (d.Flourish > 0.85) sel.select('.book__title').classed('is-flourished', true)
+
+  })
 }
 
 function checkFontsReady() {

@@ -33,6 +33,7 @@ function clean(data) {
     GoodreadsRating: +d.GoodreadsRating,
     GoodreadsReviews: +d.GoodreadsReviews,
     PubYear: +d.PubYear.trim(),
+    Flourish: Math.random()
   }));
 }
 
