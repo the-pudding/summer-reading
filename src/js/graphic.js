@@ -10,6 +10,7 @@ const $html = d3.select('html');
 const $main = d3.select('main');
 const $graphic = d3.select('#graphic');
 const $sidebar = d3.select('#sidebar');
+const $toggleCont = $sidebar.select('.sidebar__drawer')
 const $toggle = $sidebar.select('.drawer__toggle');
 const $mini = d3.select('#minimap');
 const $miniGraphic = $mini.select('.minimap__graphic');
@@ -359,12 +360,14 @@ function setupUIEnter() {
         $sidebar.classed('is-visible', true);
         $toggle.classed('is-visible', true);
       }
+      $toggleCont.classed('is-visible', true)
       $mini.classed('is-visible', true);
     },
     exit: () => {
       $sidebar.classed('is-visible', false);
       $mini.classed('is-visible', false);
       $toggle.classed('is-visible', false);
+      $toggleCont.classed('is-visible', false)
     },
     offset: 0.67,
   });
@@ -375,6 +378,7 @@ function setupUIEnter() {
       $sidebar.classed('is-visible', false);
       $mini.classed('is-visible', false);
       $toggle.classed('is-visible', false);
+      $toggleCont.classed('is-visible', false)
     },
     exit: () => {
       if (!mobile) {
@@ -382,6 +386,7 @@ function setupUIEnter() {
         $toggle.classed('is-visible', true);
       }
       $mini.classed('is-visible', true);
+      $toggleCont.classed('is-visible', true)
     },
     offset: 0,
   });
