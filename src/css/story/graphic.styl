@@ -13,6 +13,7 @@
 		border-radius 4px
 		display flex
 		align-items center
+		justify-content center
 		opacity 1
 		cursor pointer
 		transition transform 250ms ease-out
@@ -26,7 +27,7 @@
 		&:before
 			display block
 			position absolute
-			background-image linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%);
+			background-image linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%)
 			height 30%
 			width 100%
 			content ''
@@ -34,7 +35,7 @@
 		&:after
 			display block
 			position absolute
-			background-image linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.2) 100%);
+			background-image linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.2) 100%)
 			height 30%
 			width 100%
 			content ''
@@ -43,26 +44,18 @@
 
 	.book__flourish
 		background-size contain
-		padding 1rem 0.5rem
 		background-repeat no-repeat
-		background-position: center;
+		background-position center
 		background-origin content-box
-		opacity 0.7
+		opacity 0.5
 		&-0
 			order 0
-			//background-color red
-			width 50px
-			height 100%
 		&-1
 			order 2
-			//background-color blue
-			width 50px
-			height 100%
 	.book__title-container
 		order 1
-		//flex 1
 		display flex
-		align-items: center;
+		align-items center
 		height 100%
 		&.is-flourished
 			border-left 1px solid $primary

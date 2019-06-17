@@ -10,7 +10,7 @@ const $html = d3.select('html');
 const $main = d3.select('main');
 const $graphic = d3.select('#graphic');
 const $sidebar = d3.select('#sidebar');
-const $toggleCont = $sidebar.select('.sidebar__drawer')
+const $toggleCont = $sidebar.select('.sidebar__drawer');
 const $toggle = $sidebar.select('.drawer__toggle');
 const $mini = d3.select('#minimap');
 const $miniGraphic = $mini.select('.minimap__graphic');
@@ -34,8 +34,8 @@ const MAX_YEAR = 2010;
 const MIN_YEAR = 1880;
 const FONTS = ['vast', 'righteous', 'unica', 'abril', 'quintessential'];
 const EV_BREAKPOINT = 960;
-const FLOURISH_WIDTH = 100 // for both flourishes
-const FLOURISH_LOGOS = ['moustache', 'bicycle', 'deer', 'glasses', 'mug']
+const FLOURISH_WIDTH = 100; // for both flourishes
+const FLOURISH_LOGOS = ['moustache', 'bicycle', 'deer', 'glasses', 'mug'];
 
 const scaleColor = d3
   .scaleQuantize()
@@ -57,6 +57,7 @@ let windowW = $main.node().offsetWidth;
 let windowH = window.innerHeight;
 let currentSlug = null;
 let maxBookW = 0;
+let maxBookH = 0;
 let sidebarW = 0;
 let obscureScale = null;
 let miniH = 0;
@@ -93,18 +94,20 @@ function setSizes() {
 
   $book.each((d, i, n) => {
     const { width, height } = sizes[i];
-    const $thisBook = d3.select(n[i])
+    const $thisBook = d3.select(n[i]);
     $thisBook.style('width', `${width}px`);
     $thisBook.style('height', `${height}px`);
     // set width of title to be total width - flourishes
-    $thisBook.select('.book__title-container')
-      .style('width', `${width - FLOURISH_WIDTH}px`)
+    $thisBook
+      .select('.book__title-container')
+      .style('width', `${width - FLOURISH_WIDTH}px`);
   });
 
   const miniContainerH = pageH - $miniTitle.node().offsetHeight;
 
   miniH = Math.max(1, Math.floor(miniContainerH / numBooks));
   maxBookW = d3.max(sizes, d => d.width);
+  maxBookH = d3.max(sizes, d => d.height);
   miniRatio = maxBookW / (miniGraphicW * 0.2);
 
   $bookM.each((d, i, n) => {
@@ -300,6 +303,14 @@ function resizeLocator() {
   $locator.style('height', percent);
 }
 
+function resizeFlourish() {
+  const h = Math.floor(maxBookH * 0.33);
+  $graphic
+    .selectAll('.book__flourish')
+    .style('width', `${h}px`)
+    .style('height', `${h}px`);
+}
+
 function resize() {
   windowW = $main.node().offsetWidth;
   windowH = window.innerHeight;
@@ -309,6 +320,7 @@ function resize() {
   stack(true);
   resizeFit();
   resizeLocator();
+  resizeFlourish();
   updateScroll();
   updateScale();
 }
@@ -360,14 +372,14 @@ function setupUIEnter() {
         $sidebar.classed('is-visible', true);
         $toggle.classed('is-visible', true);
       }
-      $toggleCont.classed('is-visible', true)
+      $toggleCont.classed('is-visible', true);
       $mini.classed('is-visible', true);
     },
     exit: () => {
       $sidebar.classed('is-visible', false);
       $mini.classed('is-visible', false);
       $toggle.classed('is-visible', false);
-      $toggleCont.classed('is-visible', false)
+      $toggleCont.classed('is-visible', false);
     },
     offset: 0.67,
   });
@@ -378,7 +390,7 @@ function setupUIEnter() {
       $sidebar.classed('is-visible', false);
       $mini.classed('is-visible', false);
       $toggle.classed('is-visible', false);
-      $toggleCont.classed('is-visible', false)
+      $toggleCont.classed('is-visible', false);
     },
     exit: () => {
       if (!mobile) {
@@ -386,7 +398,7 @@ function setupUIEnter() {
         $toggle.classed('is-visible', true);
       }
       $mini.classed('is-visible', true);
-      $toggleCont.classed('is-visible', true)
+      $toggleCont.classed('is-visible', true);
     },
     offset: 0,
   });
@@ -449,6 +461,38 @@ function closeTooltip() {
   $tooltip.classed('is-active', false);
 }
 
+function designFlourishes() {
+  $book.each((d, i, n) => {
+    const sel = d3.select(n[i]);
+    if (d.Flourish <= 0.2) {
+      const logo = generateRandomLogo();
+      sel
+        .select('.book__flourish-0')
+        .style('background-image', `url('assets/images/${logo}.png')`)
+        .classed('is-visible', true);
+    } else if (d.Flourish <= 0.4) {
+      const logo = generateRandomLogo();
+      sel
+        .select('.book__flourish-1')
+        .style('background-image', `url('assets/images/${logo}.png')`)
+        .classed('is-visible', true);
+    } else if (d.Flourish <= 0.6) {
+      const width = Math.ceil(Math.random() * 3);
+      const styles = ['solid', 'double', 'dashed'];
+      const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+      const col = d3.color(scaleColor(d.PubYear));
+      const bg = col.darker(0.5).hex();
+      const factor = randomStyle === 'double' ? 2 : 1;
+      sel
+        .select('.book__title-container')
+        .style('border-left', `${factor * width}px ${randomStyle} ${bg}`)
+        .style('border-right', `${factor * width}px ${randomStyle} ${bg}`);
+    }
+    // if (d.Flourish > 0.85)
+    //   sel.select('.book__title').classed('is-flourished', true);
+  });
+}
+
 function setupFigures() {
   const yearRange = [MIN_YEAR, MAX_YEAR];
   scaleColor.domain(yearRange);
@@ -471,7 +515,7 @@ function setupFigures() {
 
   const $titleContainer = $book
     .append('div')
-    .attr('class', 'book__title-container')
+    .attr('class', 'book__title-container');
 
   $titleContainer
     .append('h4')
@@ -482,44 +526,12 @@ function setupFigures() {
     .selectAll('.book__flourish')
     .data(d3.range(0, 2))
     .join('div')
-    .attr('class', (d, i) => `book__flourish book__flourish-${i}`)
+    .attr('class', (d, i) => `book__flourish book__flourish-${i}`);
 
-  designFlourishes()
+  designFlourishes();
 
   $book.on('click', openTooltip);
   $tooltipClose.on('click', closeTooltip);
-}
-
-function designFlourishes(){
-  $book.each(function(d, i){
-    const sel = d3.select(this)
-    if (d.Flourish <= 0.2){sel.select('.book__flourish-0')
-      .classed('is-visible', true)
-      .style('background-image', d => {
-        const logo = generateRandomLogo()
-        return `url('assets/images/${logo}.png')`
-      })
-    }
-    if (d.Flourish > 0.2 && d.Flourish <= 0.4) {
-      sel.select('.book__flourish-1')
-        .classed('is-visible', true)
-        .style('background-image', d => {
-          const logo = generateRandomLogo()
-          return `url('assets/images/${logo}.png')`
-        })
-    }
-    if (d.Flourish > 0.4 && d.Flourish <= 0.6){
-      const width = Math.ceil(Math.random() * 3)
-      const styles = ['solid', 'double', 'dashed', 'dotted']
-      const randomStyle = styles[Math.floor(Math.random() * styles.length)];
-       sel.select('.book__title-container')
-          .style('border-left', `${width}px ${randomStyle} #000`)
-          .style('border-right', `${width}px ${randomStyle} #000`)
-       //.classed('is-flourished', true)
-     }
-    //if (d.Flourish > 0.85) sel.select('.book__title').classed('is-flourished', true)
-
-  })
 }
 
 function checkFontsReady() {
