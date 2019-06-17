@@ -448,7 +448,7 @@ function setupUI() {
 function openTooltip(d) {
   $tooltip.classed('is-active', true);
 
-  const img = $tooltip.selectAll('img').attr('src', d.ImageUrl);
+  $tooltip.selectAll('img').attr('src', d.ImageUrl);
   $tooltip.select('.tooltip__meta-title').text(d.TitleClean);
   $tooltip
     .select('.tooltip__meta-author')
@@ -536,7 +536,7 @@ function setupFigures() {
   designFlourishes();
 
   $book.on('click', openTooltip);
-  $tooltipClose.on('click', closeTooltip);
+  $tooltip.on('click', closeTooltip);
 }
 
 function checkFontsReady() {

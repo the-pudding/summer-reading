@@ -1,108 +1,108 @@
 #tooltip
-  background rgba($bg, 0.5)
-  z-index 200
-  width 100%
-  height 100%
-  display flex
-  justify-content center
-  align-items center
-  position fixed
-  top 0
-  left 0
-  opacity 0
-  transition opacity 300ms ease-in-out
-  pointer-events none
-  &.is-active
-    opacity 1
-    transition opacity 300ms ease-in-out
-    .tooltip__close, a
-      pointer-events: all
-      cursor pointer
-  .tooltip__container
-    display flex
-    justify-content: center
-    align-items: center
-    position absolute
+	background-color rgba($bg, 0.5)
+	z-index set-index(overlay)
+	width 100%
+	height 100%
+	display flex
+	justify-content center
+	align-items center
+	position fixed
+	top 0
+	left 0
+	opacity 0
+	transition opacity 300ms ease-in-out
+	pointer-events none
+	&.is-active
+		opacity 1
+		pointer-events auto
+		.tooltip__close, a
+			cursor pointer
+	.tooltip__container
+		display flex
+		justify-content center
+		align-items center
+		position absolute
 
-    .tooltip__close
-      height 30px
-      width 30px
-      background-color: $white
-      //border: 1px solid $secondary
-      align-self flex-end
-      transform translate(324px, -453px)
-      border-radius 50%
-      position relative
-      display flex
-      align-items: center;
-      justify-content: center
-      transition 300ms ease
-      z-index 50
-      +mq('bp-4')
-        transform translate(714px, -453px)
+	.tooltip__close
+		height 30px
+		width 30px
+		background-color $white
+		align-self flex-end
+		transform translate(324px, -453px)
+		border-radius 50%
+		position relative
+		display flex
+		align-items center;
+		justify-content center
+		z-index 50
+		+mq('bp-4')
+			transform translate(714px, -453px)
 
 
 
-  .tooltip__contents
-    width 315px
-    height 475px
-    background: $bg
-    border 10px solid $white
-    padding 2rem 2rem
-    display flex
-    background-image url('assets/images/coffee_flatlay_mobile.png')
-    background-size cover
-    position relative
-    overflow: hidden
-    +mq('bp-4')
-      background-image url('assets/images/coffee_flatlay.png')
-      width 700px
-      height 470px
-    .tooltip__img-desktop
-      clip-path url(#coverClip)
-      position absolute
-      width 109px
-      height 143px
-      transform translate(167px, 22px) rotate(-16deg)
-      filter saturate(50%)
-      +mq('bp-4')
-        width 138px
-        height 205px
-        transform translate(288px, 113px) rotate(-1deg)
-    .tooltip__meta
-      padding 0 1rem
-      font-family $shadow
-      overflow hidden
-      position absolute
-      transform translate(-32px, 194px)
-      height 200px
-      width 185px
-      color $primary
-      +mq('bp-4')
-        transform translate(6px, 182px)
-        height 200px
-        width 185px
-      &-title
-        set-type-size('large')
-        margin 0
-        line-height 1.2
-      &-author
-        set-type-size('medium')
-        margin 0
-      &-desc
-        set-type-size('small')
-        margin-top 0.5rem
-    .tooltip__library
-      set-type-size('small')
-      position absolute
-      width 70px
-      text-align center
-      font-family $shadow
-      color $primary
-      border-bottom none
-      transform translate(170px, 334px) rotate(25deg)
-      line-height 1.2
-      +mq('bp-4')
-        transform translate(537px, 321px) rotate(13deg)
-        set-type-size('medium')
-        width 90px
+	.tooltip__contents
+		width 315px
+		height 475px
+		background $bg
+		border 10px solid $white
+		padding 2rem 2rem
+		display flex
+		background-image url('assets/images/coffee_flatlay_mobile.png')
+		background-size cover
+		position relative
+		overflow hidden
+		+mq('bp-4')
+			background-image url('assets/images/coffee_flatlay.png')
+			width 700px
+			height 470px
+		.tooltip__img-desktop
+			clip-path url(#coverClip)
+			position absolute
+			width 109px
+			height 143px
+			transform translate(167px, 22px) rotate(-16deg)
+			filter saturate(50%)
+			+mq('bp-4')
+				width 138px
+				height 205px
+				transform translate(288px, 113px) rotate(-1deg)
+		.tooltip__meta
+			padding 0 1rem
+			font-family $shadow
+			overflow hidden
+			position absolute
+			transform translate(-32px, 194px)
+			height 200px
+			width 185px
+			color $primary
+			+mq('bp-4')
+				transform translate(6px, 182px)
+				height 200px
+				width 175px
+			&-title
+				set-type-size('large')
+				margin 0
+				line-height 1.1
+				margin-bottom 0.5rem
+			&-author
+				margin 0
+				set-type-size('medium')
+				line-height 1.2
+			&-desc
+				set-type-size('small')
+				line-height 1.3
+				margin-top 0.5rem
+		.tooltip__library
+			set-type-size('small')
+			position absolute
+			width 70px
+			text-align center
+			font-family $shadow
+			color $primary
+			border-bottom none
+			transform translate(170px, 334px) rotate(25deg)
+			line-height 1.2
+			+mq('bp-4')
+				transform translate(537px, 321px) rotate(13deg)
+				set-type-size('medium')
+				width 90px
