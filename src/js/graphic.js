@@ -35,7 +35,7 @@ const MIN_YEAR = 1880;
 const FONTS = ['vast', 'righteous', 'unica', 'abril', 'quintessential'];
 const EV_BREAKPOINT = 960;
 const FLOURISH_WIDTH = 100; // for both flourishes
-const FLOURISH_LOGOS = ['moustache', 'bicycle', 'deer', 'glasses', 'mug'];
+const FLOURISH_LOGOS = ['moustache', 'bicycle', 'deer', 'glasses', 'mug', 'camera', 'pencil', 'pipe', 'watch', 'cup'];
 
 const scaleColor = d3
   .scaleQuantize()
