@@ -476,7 +476,7 @@ function designFlourishes() {
         .select('.book__flourish-1')
         .style('background-image', `url('assets/images/${logo}.png')`)
         .classed('is-visible', true);
-    } else if (d.Flourish <= 0.6) {
+    } else if (d.Flourish <= 0.7) {
       const width = Math.ceil(Math.random() * 3);
       const styles = ['solid', 'double', 'dashed'];
       const randomStyle = styles[Math.floor(Math.random() * styles.length)];
@@ -488,8 +488,6 @@ function designFlourishes() {
         .style('border-left', `${factor * width}px ${randomStyle} ${bg}`)
         .style('border-right', `${factor * width}px ${randomStyle} ${bg}`);
     }
-    // if (d.Flourish > 0.85)
-    //   sel.select('.book__title').classed('is-flourished', true);
   });
 }
 
@@ -527,6 +525,13 @@ function setupFigures() {
     .data(d3.range(0, 2))
     .join('div')
     .attr('class', (d, i) => `book__flourish book__flourish-${i}`);
+
+  $book.each((d, i, n) => {
+    if (d.Flourish === 1)
+      d3.select(n[i])
+        .selectAll('.book__flourish')
+        .remove();
+  });
 
   designFlourishes();
 
