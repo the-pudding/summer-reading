@@ -5,21 +5,22 @@ const jimp = require('jimp');
 
 const data = JSON.parse(fs.readFileSync('./src/assets/data/books.json'));
 
-async function download(d) {
+async function downloadImage(d) {
   const path = `./.tmp/books/${d.BibNum}.jpg`;
   const exists = fs.existsSync(path);
   if (!exists && d.ImageUrl) {
-    const options = {
-      url: d.ImageUrl,
-      dest: path,
-    };
-    try {
-      const { filename, image } = await downloader.image(options);
-      console.log(filename);
-      return Promise.resolve();
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    console.log(d.BibNum);
+    // const options = {
+    //   url: d.ImageUrl,
+    //   dest: path,
+    // };
+    // try {
+    //   const { filename, image } = await downloader.image(options);
+    //   console.log(filename);
+    //   return Promise.resolve();
+    // } catch (e) {
+    //   return Promise.reject(e);
+    // }
   } else return Promise.resolve();
 }
 
@@ -29,7 +30,8 @@ async function munge(d) {
       .read(`./.tmp/books/${d}`)
       .then(img =>
         img
-          .resize(320, jimp.AUTO)
+          .resize(280, jimp.AUTO)
+          .quality(75)
           .color([{ apply: 'desaturate', params: [50] }])
           .write(`./.tmp/books-munge/${d}`)
       )
@@ -38,11 +40,11 @@ async function munge(d) {
   });
 }
 
-async function init() {
-  mkdirp('./.tmp/books');
+async function download() {
+  // mkdirp('./.tmp/books');
   for (d of data) {
     try {
-      await download(d);
+      await downloadImage(d);
     } catch (error) {
       console.log(error);
     }
@@ -63,5 +65,6 @@ async function convert() {
   }
 }
 
-init();
+// choose which function to run
+// download();
 convert();

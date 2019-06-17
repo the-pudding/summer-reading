@@ -47,12 +47,12 @@
 		border 10px solid $white
 		padding 2rem 2rem
 		display flex
-		background-image url('assets/images/coffee_flatlay_mobile.png')
+		background-image url('assets/images/coffee_flatlay_mobile@2x.png')
 		background-size cover
 		position relative
 		overflow hidden
 		+mq('bp-4')
-			background-image url('assets/images/coffee_flatlay.png')
+			background-image url('assets/images/coffee_flatlay@2x.png')
 			width 700px
 			height 470px
 		.tooltip__img-desktop
@@ -61,7 +61,11 @@
 			width 109px
 			height 143px
 			transform translate(167px, 22px) rotate(-16deg)
-			filter saturate(50%)
+			// filter saturate(50%)
+			display none
+			&.is-visible
+				display block
+			
 			+mq('bp-4')
 				width 138px
 				height 205px

@@ -448,13 +448,17 @@ function setupUI() {
 function openTooltip(d) {
   $tooltip.classed('is-active', true);
 
-  $tooltip.selectAll('img').attr('src', d.ImageUrl);
+  $tooltip
+    .select('img')
+    .attr('src', d.HasImage ? `assets/images/books/${d.BibNum}.jpg` : '')
+    .classed('is-visible', d.HasImage);
+
   $tooltip.select('.tooltip__meta-title').text(d.TitleClean);
   $tooltip
     .select('.tooltip__meta-author')
     .text(d.AuthorClean[0].first.concat(` ${d.AuthorClean[0].last}`));
   $tooltip.select('.tooltip__meta-desc').text(d.GoodreadsDes);
-  $tooltip.select('.tooltip__gr').attr('href', d.GoodreadsLink);
+  $tooltip.select('.tooltip__gr').attr('href', `#${d.WorldCatLink}#borrow`);
 }
 
 function closeTooltip() {
@@ -576,9 +580,14 @@ function setupFirstSlug() {
 
 function setupObscure() {
   const data = bookData.map(d => d.GoodreadsReviews).filter(d => d > 0);
-  const max = d3.max(data);
+  data.sort(d3.ascending);
+  // const max = d3.max(data);
+  // const median = d3.median(data);
+  const q1 = d3.quantile(data, 0.25);
+  const q2 = d3.quantile(data, 0.75);
+
   // TODO quantiles?
-  obscureScale = [0, Math.floor(max * 0.33), Math.floor(max * 0.67)];
+  obscureScale = [0, q1, q2];
 }
 
 function init() {
