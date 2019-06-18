@@ -473,7 +473,7 @@ function openTooltip(d) {
 
 	$img.style('opacity', 0).attr('src', d.HasImage ? src : '');
 
-
+	$tooltip.select('.tooltip__meta-year').text(`[${d.PubYear}]`);
   $tooltip.select('.tooltip__meta-title').text(d.TitleClean);
   $tooltip
     .select('.tooltip__meta-author')
