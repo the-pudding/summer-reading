@@ -460,6 +460,9 @@ function openTooltip(d) {
     .text(d.AuthorClean[0].first.concat(` ${d.AuthorClean[0].last}`));
   $tooltip.select('.tooltip__meta-desc').text(d.GoodreadsDes);
   $tooltip.select('.tooltip__gr').attr('href', `#${d.WorldCatLink}#borrow`);
+  const gr = $tooltip.select('.goodreads-attr').attr('href', d.GoodreadsLink)
+  console.log(gr)
+  fillStars(d.GoodreadsRating)
 }
 
 function closeTooltip() {
@@ -573,9 +576,27 @@ function setupLocator() {
 function setupStars(){
   const $stars = $starCont
     .selectAll('.star')
-    .data(d3.range(0, 5))
+    .data(d3.range(1, 6))
     .join('div')
-    .attr('class', (d, i) => `star star-${i}`)
+    .attr('class', (d, i) => `star star-${d}`)
+}
+
+function fillStars(rating){
+  const $stars = $starCont.selectAll('.star')
+    .classed('full', false)
+    .classed('half', false)
+
+  const wholeStars = Math.floor(rating)
+  const halfStars = wholeStars < rating
+console.log({rating, wholeStars, halfStars})
+
+  for (let iStar = 1; iStar <= wholeStars; iStar++){
+    d3.select(`.star-${iStar}`).classed('full', true)
+  }
+
+  if (halfStars) {
+    d3.select(`.star-${wholeStars + 1}`).classed('half', true)
+  }
 }
 
 function setupFirstSlug() {
