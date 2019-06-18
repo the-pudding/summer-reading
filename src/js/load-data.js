@@ -30,7 +30,7 @@ function clean(data) {
     Subtitle: d.Subtitle.trim(),
     AuthorClean: parseName(d.AuthorClean),
     AuthorMore: parseName(d.AuthorMore),
-    GoodreadsRating: +d.GoodreadsRating,
+    GoodreadsRating: Math.round(+d.GoodreadsRating * 2) / 2, /* round to nearest half*/
     GoodreadsReviews: +d.GoodreadsReviews,
     PubYear: +d.PubYear.trim(),
     Flourish: d.TitleClean.length < 30 ? Math.random() : 1,

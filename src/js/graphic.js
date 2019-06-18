@@ -25,6 +25,7 @@ const $locator = $miniGraphic.select('.graphic__locator');
 const $graphicEl = $graphic.node();
 const $graphicScale = $graphic.select('.graphic__scale');
 const $headerToggle = d3.select('.header__toggle');
+const $starCont = $tooltip.select('.stars')
 
 let $book = null;
 let $bookM = null;
@@ -569,6 +570,14 @@ function setupLocator() {
   window.addEventListener('scroll', handleScroll, true);
 }
 
+function setupStars(){
+  const $stars = $starCont
+    .selectAll('.star')
+    .data(d3.range(0, 5))
+    .join('div')
+    .attr('class', (d, i) => `star star-${i}`)
+}
+
 function setupFirstSlug() {
   const $f = $sortButton.filter((d, i, n) =>
     d3.select(n[i]).classed('is-active')
@@ -600,6 +609,7 @@ function init() {
     setupFigures();
     setupLocator();
     setupSidebarDrawer();
+    setupStars();
     resize();
     setupUI();
     setupComplete = true;
