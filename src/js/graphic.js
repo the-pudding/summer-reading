@@ -5,6 +5,7 @@ import MoveTo from 'moveto';
 import noUiSlider from 'nouislider';
 import COLORS from './colors';
 import loadData from './load-data';
+import loadImage from './utils/load-image-promise';
 
 const $html = d3.select('html');
 const $main = d3.select('main');
@@ -467,10 +468,11 @@ function fillStars(rating) {
 function openTooltip(d) {
   $tooltip.classed('is-active', true);
 
-  $tooltip
-    .select('img')
-    .attr('src', d.HasImage ? `assets/images/books/${d.BibNum}.jpg` : '')
-    .classed('is-visible', d.HasImage);
+	const src = `assets/images/books/${d.BibNum}.jpg`;
+	const $img = $tooltip.select('img');
+
+	$img.style('opacity', 0).attr('src', d.HasImage ? src : '');
+
 
   $tooltip.select('.tooltip__meta-title').text(d.TitleClean);
   $tooltip
@@ -480,6 +482,12 @@ function openTooltip(d) {
   $tooltip.select('.tooltip__library').attr('href', `${d.WorldCatLink}#borrow`).classed('is-visible', !!d.WorldCatLink);
   $tooltip.select('.goodreads-attr').attr('href', d.GoodreadsLink).classed('is-visible', !!d.GoodreadsLink);
   fillStars(d.GoodreadsRating);
+
+	if (d.HasImage) {
+		loadImage(src).then(() => {
+			$img.transition().duration(250).style('opacity', 1);
+		})
+	}
 }
 
 function closeTooltip() {
