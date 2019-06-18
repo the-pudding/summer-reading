@@ -446,6 +446,23 @@ function setupUI() {
   setupMiniClick();
 }
 
+function fillStars(rating) {
+	$starCont.selectAll('.star')
+		.classed('full', false)
+		.classed('half', false);
+
+	const wholeStars = Math.floor(rating);
+	const halfStars = wholeStars < rating;
+
+	for (let iStar = 1; iStar <= wholeStars; iStar++) {
+		d3.select(`.star-${iStar}`).classed('full', true)
+	}
+
+	if (halfStars) {
+		d3.select(`.star-${wholeStars + 1}`).classed('half', true)
+	}
+}
+
 function openTooltip(d) {
   $tooltip.classed('is-active', true);
 
@@ -459,14 +476,16 @@ function openTooltip(d) {
     .select('.tooltip__meta-author')
     .text(d.AuthorClean[0].first.concat(` ${d.AuthorClean[0].last}`));
   $tooltip.select('.tooltip__meta-desc').text(d.GoodreadsDes);
-  $tooltip.select('.tooltip__gr').attr('href', `#${d.WorldCatLink}#borrow`);
-  const gr = $tooltip.select('.goodreads-attr').attr('href', d.GoodreadsLink)
-  console.log(gr)
-  fillStars(d.GoodreadsRating)
+  $tooltip.select('.tooltip__library').attr('href', `${d.WorldCatLink}#borrow`).classed('is-visible', !!d.WorldCatLink);
+  $tooltip.select('.goodreads-attr').attr('href', d.GoodreadsLink).classed('is-visible', !!d.GoodreadsLink);
+  fillStars(d.GoodreadsRating);
 }
 
 function closeTooltip() {
-  $tooltip.classed('is-active', false);
+	const sel = d3.select(d3.event.target);
+	const isLibrary = sel.classed('tooltip__library');
+	const isGoodreads = sel.classed('goodreads-attr');
+	if (!isLibrary && !isGoodreads) $tooltip.classed('is-active', false);
 }
 
 function designFlourishes() {
@@ -579,24 +598,6 @@ function setupStars(){
     .data(d3.range(1, 6))
     .join('div')
     .attr('class', (d, i) => `star star-${d}`)
-}
-
-function fillStars(rating){
-  const $stars = $starCont.selectAll('.star')
-    .classed('full', false)
-    .classed('half', false)
-
-  const wholeStars = Math.floor(rating)
-  const halfStars = wholeStars < rating
-console.log({rating, wholeStars, halfStars})
-
-  for (let iStar = 1; iStar <= wholeStars; iStar++){
-    d3.select(`.star-${iStar}`).classed('full', true)
-  }
-
-  if (halfStars) {
-    d3.select(`.star-${wholeStars + 1}`).classed('half', true)
-  }
 }
 
 function setupFirstSlug() {
