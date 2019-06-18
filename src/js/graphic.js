@@ -473,15 +473,33 @@ function openTooltip(d) {
 
 	$img.style('opacity', 0).attr('src', d.HasImage ? src : '');
 
+  const shortenedTitle = d.TitleClean.length > 15 ? `${d.TitleClean.substring(0, 15)}...` : d.TitleClean;
+
 	$tooltip.select('.tooltip__meta-year').text(`[${d.PubYear}]`);
-  $tooltip.select('.tooltip__meta-title').text(d.TitleClean);
+  $tooltip.select('.tooltip__meta-title').text(shortenedTitle);
   $tooltip
     .select('.tooltip__meta-author')
     .text(d.AuthorClean[0].first.concat(` ${d.AuthorClean[0].last}`));
   $tooltip.select('.tooltip__meta-desc').text(d.GoodreadsDes);
   $tooltip.select('.tooltip__library').attr('href', `${d.WorldCatLink}#borrow`).classed('is-visible', !!d.WorldCatLink);
-  $tooltip.select('.goodreads-attr').attr('href', d.GoodreadsLink).classed('is-visible', !!d.GoodreadsLink);
+  const $goodreadsAttr = $tooltip.select('.goodreads-attr')
+  $goodreadsAttr.attr('href', d.GoodreadsLink).classed('is-visible', !!d.GoodreadsLink);
   fillStars(d.GoodreadsRating);
+
+  if (d.GoodreadsRating === 0 && d.GoodreadsLink) {
+    $goodreadsAttr.text('No ratings on Goodreads')
+    $starCont.classed('is-hidden', true)
+  } else if (!d.GoodreadsLink) {
+    $goodreadsAttr
+      .text('Not on Goodreads')
+      .attr('href', 'https://goodreads.com')
+
+    $starCont.classed('is-hidden', true)
+  } else {
+    $goodreadsAttr.text('on Goodreads')
+    $starCont.classed('is-hidden', false)
+  }
+
 
 	if (d.HasImage) {
 		loadImage(src).then(() => {
