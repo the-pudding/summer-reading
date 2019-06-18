@@ -20,17 +20,17 @@ const $slider = $sidebar.select('.slider');
 const $sortButton = $sidebar.selectAll('.nav__sort-button');
 const $sortDesc = $sidebar.selectAll('.nav__desc');
 const $tooltip = d3.select('#tooltip');
-const $tooltipClose = $tooltip.select('.tooltip__close');
 const $locator = $miniGraphic.select('.graphic__locator');
 const $graphicEl = $graphic.node();
 const $graphicScale = $graphic.select('.graphic__scale');
 const $headerToggle = d3.select('.header__toggle');
-const $starCont = $tooltip.select('.stars')
+const $starCont = $tooltip.select('.stars');
 
 let $book = null;
 let $bookM = null;
 
 const MAX_BOOK_WIDTH = 560;
+const MIN_BOOK_WIDTH = 320;
 const MAX_YEAR = 2010;
 const MIN_YEAR = 1880;
 const FONTS = ['vast', 'righteous', 'unica', 'abril', 'quintessential'];
@@ -83,6 +83,7 @@ function setSizes() {
   );
 
   baseW *= 0.67;
+	if (!mobile) baseW = Math.max(baseW, MIN_BOOK_WIDTH);
 
   const baseH = baseW * ratio;
   const sizes = d3.range(numBooks).map(() => {
