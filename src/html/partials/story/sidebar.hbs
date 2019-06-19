@@ -18,6 +18,18 @@
       <button class='nav__sort-button {{class}}' data-slug={{slug}} data-desc='{{description}}'>{{text}}</button>
     {{/each}}
   </div>
+	
+	<p class='nav__desc sort__desc'></p>
 
-	<p class='nav__desc'></p>
+
+	<div class='nav__filter'>
+		<h4>{{doc.navFilterTitle}}</h4>
+		{{#each doc.filterButtons}}
+			<button class='nav__filter-button {{class}}' data-slug={{slug}} data-desc='{{description}}'>{{text}}</button>
+		{{/each}}
+	</div>
+
+	<p class='nav__desc filter__desc'></p>
+
+	
 </aside>

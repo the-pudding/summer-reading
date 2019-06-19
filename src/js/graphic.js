@@ -19,7 +19,9 @@ const $miniTitle = $mini.select('.minimap__hed');
 const $miniCount = $miniTitle.select('span');
 const $slider = $sidebar.select('.slider');
 const $sortButton = $sidebar.selectAll('.nav__sort-button');
-const $sortDesc = $sidebar.selectAll('.nav__desc');
+const $filterButton = $sidebar.selectAll('.nav__filter-button');
+const $sortDesc = $sidebar.selectAll('.sort__desc');
+const $filterDesc = $sidebar.selectAll('.filter__desc');
 const $tooltip = d3.select('#tooltip');
 const $locator = $miniGraphic.select('.graphic__locator');
 const $graphicEl = $graphic.node();
@@ -37,14 +39,25 @@ const MIN_YEAR = 1880;
 const FONTS = ['vast', 'righteous', 'unica', 'abril', 'quintessential'];
 const EV_BREAKPOINT = 960;
 const FLOURISH_WIDTH = 100; // for both flourishes
-const FLOURISH_LOGOS = ['moustache', 'bicycle', 'deer', 'glasses', 'mug', 'camera', 'pencil', 'pipe', 'watch', 'cup'];
+const FLOURISH_LOGOS = [
+  'moustache',
+  'bicycle',
+  'deer',
+  'glasses',
+  'mug',
+  'camera',
+  'pencil',
+  'pipe',
+  'watch',
+  'cup',
+];
 
 const scaleColor = d3
   .scaleQuantize()
   .range(COLORS)
   .nice();
 
-const filters = { keyword: false, years: [MIN_YEAR, MAX_YEAR - 5] };
+const filters = { years: [MIN_YEAR, MAX_YEAR - 5] };
 
 let bookData = [];
 let rawData = [];
@@ -65,8 +78,10 @@ let obscureScale = null;
 let miniH = 0;
 let mobile = false;
 
-function generateRandomFont() {
-  return FONTS[Math.floor(Math.random() * FONTS.length)];
+function generateRandomFont(title) {
+  const len = title.length;
+  const possible = len < 20 ? FONTS : FONTS.filter(d => d !== 'vast');
+  return possible[Math.floor(Math.random() * possible.length)];
 }
 
 function generateRandomLogo() {
@@ -84,7 +99,7 @@ function setSizes() {
   );
 
   baseW *= 0.67;
-	if (!mobile) baseW = Math.max(baseW, MIN_BOOK_WIDTH);
+  if (!mobile) baseW = Math.max(baseW, MIN_BOOK_WIDTH);
 
   const baseH = baseW * ratio;
   const sizes = d3.range(numBooks).map(() => {
@@ -121,16 +136,19 @@ function setSizes() {
 }
 
 function applyFilters(d) {
-  let onScreen = true;
+  let off = false;
 
-  Object.keys(filters).forEach(k => {
-    if (filters[k]) {
-      onScreen =
-        d.PubYear >= +filters.years[0] && d.PubYear <= +filters.years[1];
-    }
-  });
+  // look for things to satisfy offscreen conditions
+  Object.keys(filters)
+    .filter(f => filters[f])
+    .forEach(f => {
+      const filter = filters[f];
+      if ((f === 'years' && d.PubYear < +filter[0]) || d.PubYear > +filter[1])
+        off = true;
+      if (f === 'hipster' && d.GoodreadsReviews >= obscureScale[1]) off = true;
+    });
 
-  return onScreen;
+  return !off;
 }
 
 function stackBook({ graphic, book, posX, jump }) {
@@ -292,8 +310,10 @@ function resizeFit() {
     });
     $book
       .select('.book__title')
-      .attr('class', () => {
-        const font = fallbackFont ? '' : ` font-${generateRandomFont()}`;
+      .attr('class', d => {
+        const font = fallbackFont
+          ? ''
+          : ` font-${generateRandomFont(d.TitleClean)}`;
         return `book__title${font}`;
       })
       .classed('is-visible', true);
@@ -328,11 +348,6 @@ function resize() {
   updateScale();
 }
 
-function sortData(slug) {
-  currentSlug = slug;
-  rawData.sort((a, b) => d3.ascending(a[slug], b[slug]));
-}
-
 function handleMiniClick() {
   const [x, y] = d3.mouse(this);
   const index = Math.floor(y / miniH);
@@ -345,13 +360,33 @@ function handleSort() {
   const sel = d3.select(this);
   const slug = sel.attr('data-slug');
   const desc = sel.attr('data-desc');
+
   $sortDesc.text(desc);
-
-  sortData(slug);
-
   $sortButton.classed('is-active', false);
   sel.classed('is-active', true);
 
+  currentSlug = slug;
+  rawData.sort((a, b) => d3.ascending(a[slug], b[slug]));
+
+  stack();
+  updateScale();
+}
+
+function handleFilter() {
+  const sel = d3.select(this);
+  const active = sel.classed('is-active');
+  const slug = sel.attr('data-slug');
+  const desc = sel.attr('data-desc');
+
+  $filterDesc.text(desc);
+
+  $filterButton.classed('is-active', false);
+  sel.classed('is-active', !active);
+
+  Object.keys(filters).forEach(f => {
+    if (f !== 'years') delete filters[f];
+  });
+  if (!active) filters[slug] = true;
   stack();
   updateScale();
 }
@@ -363,8 +398,9 @@ function handleScroll() {
   }
 }
 
-function setupSort() {
+function setupButtons() {
   $sortButton.on('click', handleSort);
+  $filterButton.on('click', handleFilter);
 }
 
 function setupUIEnter() {
@@ -442,77 +478,88 @@ function setupMiniClick() {
 }
 
 function setupUI() {
-  setupSort();
+  setupButtons();
   setupSlider();
   setupUIEnter();
   setupMiniClick();
 }
 
 function fillStars(rating) {
-	$starCont.selectAll('.star')
-		.classed('full', false)
-		.classed('half', false);
+  $starCont
+    .selectAll('.star')
+    .classed('full', false)
+    .classed('half', false);
 
-	const wholeStars = Math.floor(rating);
-	const halfStars = wholeStars < rating;
+  const wholeStars = Math.floor(rating);
+  const halfStars = wholeStars < rating;
 
-	for (let iStar = 1; iStar <= wholeStars; iStar++) {
-		d3.select(`.star-${iStar}`).classed('full', true)
-	}
+  for (let iStar = 1; iStar <= wholeStars; iStar++) {
+    d3.select(`.star-${iStar}`).classed('full', true);
+  }
 
-	if (halfStars) {
-		d3.select(`.star-${wholeStars + 1}`).classed('half', true)
-	}
+  if (halfStars) {
+    d3.select(`.star-${wholeStars + 1}`).classed('half', true);
+  }
 }
 
 function openTooltip(d) {
   $tooltip.classed('is-active', true);
 
-	const src = `assets/images/books/${d.BibNum}.jpg`;
-	const $img = $tooltip.select('img');
+  const src = `assets/images/books/${d.BibNum}.jpg`;
+  const $img = $tooltip.select('img');
 
-	$img.style('opacity', 0).attr('src', d.HasImage ? src : '');
+  $img.style('opacity', 0).attr('src', d.HasImage ? src : '');
 
-  const shortenedTitle = d.TitleClean.length > 15 ? `${d.TitleClean.substring(0, 15)}...` : d.TitleClean;
+  const shortenedTitle =
+    d.TitleClean.length > 15
+      ? `${d.TitleClean.substring(0, 15)}...`
+      : d.TitleClean;
 
-	$tooltip.select('.tooltip__meta-year').text(`[${d.PubYear}]`);
+  $tooltip.select('.tooltip__meta-year').text(`[${d.PubYear}]`);
   $tooltip.select('.tooltip__meta-title').text(shortenedTitle);
   $tooltip
     .select('.tooltip__meta-author')
     .text(d.AuthorClean[0].first.concat(` ${d.AuthorClean[0].last}`));
   $tooltip.select('.tooltip__meta-desc').text(d.GoodreadsDes);
-  $tooltip.select('.tooltip__library').attr('href', `${d.WorldCatLink}#borrow`).classed('is-visible', !!d.WorldCatLink);
-  const $goodreadsAttr = $tooltip.select('.goodreads-attr')
-  $goodreadsAttr.attr('href', d.GoodreadsLink).classed('is-visible', !!d.GoodreadsLink);
+  $tooltip
+    .select('.tooltip__library')
+    .attr('href', `${d.WorldCatLink}#borrow`)
+    .classed('is-visible', !!d.WorldCatLink);
+  const $goodreadsAttr = $tooltip.select('.goodreads-attr');
+  $goodreadsAttr
+    .attr('href', d.GoodreadsLink)
+    .classed('is-visible', !!d.GoodreadsLink);
   fillStars(d.GoodreadsRating);
 
   if (d.GoodreadsRating === 0 && d.GoodreadsLink) {
-    $goodreadsAttr.text('No ratings on Goodreads')
-    $starCont.classed('is-hidden', true)
+    $goodreadsAttr.text('No ratings on Goodreads');
+    $starCont.classed('is-hidden', true);
   } else if (!d.GoodreadsLink) {
     $goodreadsAttr
       .text('Not on Goodreads')
-      .attr('href', 'https://goodreads.com')
+      .attr('href', 'https://goodreads.com');
 
-    $starCont.classed('is-hidden', true)
+    $starCont.classed('is-hidden', true);
   } else {
-    $goodreadsAttr.text('on Goodreads')
-    $starCont.classed('is-hidden', false)
+    $goodreadsAttr.text('on Goodreads');
+    $starCont.classed('is-hidden', false);
   }
 
-
-	if (d.HasImage) {
-		loadImage(src).then(() => {
-			$img.transition().duration(250).style('opacity', 1);
-		})
-	}
+  if (d.HasImage) {
+    loadImage(src).then(() => {
+      $img
+        .transition()
+        .duration(250)
+        .style('opacity', 1);
+    });
+  }
 }
 
 function closeTooltip() {
-	const sel = d3.select(d3.event.target);
-	const isLibrary = sel.classed('tooltip__library');
-	const isGoodreads = sel.classed('goodreads-attr');
-	if (!isLibrary && !isGoodreads) $tooltip.classed('is-active', false);
+  const sel = d3.select(d3.event.target);
+  const isLibrary = sel.classed('tooltip__library');
+  const isGoodreads = sel.classed('goodreads-attr');
+  if (!isLibrary && !isGoodreads) $tooltip.classed('is-active', false);
 }
 
 function designFlourishes() {
@@ -619,12 +666,12 @@ function setupLocator() {
   window.addEventListener('scroll', handleScroll, true);
 }
 
-function setupStars(){
+function setupStars() {
   const $stars = $starCont
     .selectAll('.star')
     .data(d3.range(1, 6))
     .join('div')
-    .attr('class', (d, i) => `star star-${d}`)
+    .attr('class', (d, i) => `star star-${d}`);
 }
 
 function setupFirstSlug() {
