@@ -6,6 +6,10 @@
 	}).catch(console.error)
 */
 
+let dictionary = null
+let data = null
+let dictMap = null
+
 function createFullName(str) {
   const [lastRaw, first] = str
     .trim()
@@ -34,14 +38,23 @@ function clean(data) {
     GoodreadsReviews: +d.GoodreadsReviews,
     PubYear: +d.PubYear.trim(),
     Flourish: d.TitleClean.length < 30 ? Math.random() : 1,
+    Filters: dictMap.get(+d.BibNum).new,
+    Subjects: dictMap.get(+d.BibNum).combo,
   }));
 }
 
+
 export default function loadData() {
   return new Promise((resolve, reject) => {
-    d3.json(`assets/data/books.json`)
+    const promises = [d3.json('assets/data/books.json'), d3.csv('assets/data/crosswalk.csv')]
+    Promise.all(promises)
+      .then((values) => {
+        dictionary = values[1]
+        dictMap = d3.map(dictionary, d => +d.BibNum)
+        return data = values[0]
+      })
       .then(clean)
       .then(resolve)
-      .catch(reject);
-  });
+      .catch(reject)
+  })
 }

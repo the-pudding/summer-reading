@@ -137,6 +137,7 @@ function setSizes() {
 
 function applyFilters(d) {
   let off = false;
+  console.log({d})
 
   // look for things to satisfy offscreen conditions
   Object.keys(filters)
@@ -698,6 +699,7 @@ function setupObscure() {
 function init() {
   checkFontsReady();
   loadData().then(data => {
+    console.log({data})
     rawData = data;
     bookData = rawData;
     setupObscure();
