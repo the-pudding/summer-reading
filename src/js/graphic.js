@@ -28,6 +28,7 @@ const $graphicEl = $graphic.node();
 const $graphicScale = $graphic.select('.graphic__scale');
 const $headerToggle = d3.select('.header__toggle');
 const $starCont = $tooltip.select('.stars');
+const $grLink = $tooltip.select('.goodreads-link')
 
 let $book = null;
 let $bookM = null;
@@ -490,6 +491,7 @@ function setupUI() {
 }
 
 function fillStars(rating) {
+  console.log({$starCont})
   $starCont
     .selectAll('.star')
     .classed('full', false)
@@ -531,7 +533,7 @@ function openTooltip(d) {
     .attr('href', `${d.WorldCatLink}#borrow`)
     .classed('is-visible', !!d.WorldCatLink);
   const $goodreadsAttr = $tooltip.select('.goodreads-attr');
-  $goodreadsAttr
+  $grLink
     .attr('href', d.GoodreadsLink)
     .classed('is-visible', !!d.GoodreadsLink);
   fillStars(d.GoodreadsRating);
@@ -542,6 +544,7 @@ function openTooltip(d) {
   } else if (!d.GoodreadsLink) {
     $goodreadsAttr
       .text('Not on Goodreads')
+    $grLink
       .attr('href', 'https://goodreads.com');
 
     $starCont.classed('is-hidden', true);
