@@ -37,10 +37,15 @@ function clean(data) {
     GoodreadsRating: Math.round(+d.GoodreadsRating * 2) / 2, /* round to nearest half*/
     GoodreadsReviews: +d.GoodreadsReviews,
     PubYear: +d.PubYear.trim(),
+    Pages: +d.Pages,
     Flourish: d.TitleClean.length < 30 ? Math.random() : 1,
-    Filters: dictMap.get(+d.BibNum).new,
+    Filters: splitFilters(dictMap.get(+d.BibNum).new),
     Subjects: dictMap.get(+d.BibNum).combo,
   }));
+}
+
+function splitFilters(str){
+  return str.split(',')
 }
 
 

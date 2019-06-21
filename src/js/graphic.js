@@ -137,7 +137,6 @@ function setSizes() {
 
 function applyFilters(d) {
   let off = false;
-  console.log({d})
 
   // look for things to satisfy offscreen conditions
   Object.keys(filters)
@@ -147,6 +146,11 @@ function applyFilters(d) {
       if ((f === 'years' && d.PubYear < +filter[0]) || d.PubYear > +filter[1])
         off = true;
       if (f === 'hipster' && d.GoodreadsReviews >= obscureScale[1]) off = true;
+      if (f === 'short' && d.Pages >= 200) off = true;
+      if (f === 'long' && d.Pages <= 400) off = true;
+      if (f === 'unrated' && d.GoodreadsRating > 0) off = true;
+      // if (f === 'unknown' && d.Subjects != '' && d.Summary != '' || d.GoodreadsRating > 0 ) off = true;
+      if (f === 'pnw' && !d.Filters.includes('pnw')) off = true;
     });
 
   return !off;
@@ -699,7 +703,6 @@ function setupObscure() {
 function init() {
   checkFontsReady();
   loadData().then(data => {
-    console.log({data})
     rawData = data;
     bookData = rawData;
     setupObscure();
