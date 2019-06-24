@@ -144,21 +144,30 @@ function applyFilters(d) {
     .filter(f => filters[f])
     .forEach(f => {
       const filter = filters[f];
-      if ((f === 'years' && d.PubYear < +filter[0]) || d.PubYear > +filter[1])
-        off = true;
-      if (
-        f === 'hipster' &&
-        d.GoodreadsReviews >= obscureScale[1] &&
-        d.PubYear > 1950
-      )
-        off = true;
-      if ((f === 'short' && d.Pages >= 200) || !d.Pages) off = true;
-      if ((f === 'long' && d.Pages <= 400) || !d.Pages) off = true;
-      if (f === 'unrated' && d.GoodreadsRating > 0) off = true;
-      if (f === 'pnw' && !d.Filters.includes('pnw')) off = true;
-      // if (f === 'unknown' && d.Subjects != '' && d.Summary != '' || d.GoodreadsRating > 0 ) off = true;
+      switch (f) {
+        case 'years':
+          if (d.PubYear < +filter[0] || d.PubYear > +filter[1]) off = true;
+          break;
+        case 'hipster':
+          if (d.GoodreadsReviews >= obscureScale[1] || d.PubYear > 1918)
+            off = true;
+          break;
+        case 'short':
+          if (d.Pages >= 200 || !d.Pages) off = true;
+          break;
+        case 'long':
+          if (d.Pages <= 400 || !d.Pages) off = true;
+          break;
+        case 'unrated':
+          if (d.GoodreadsRating > 0) off = true;
+          break;
+        case 'pnw':
+          if (!d.Filters.includes('pnw')) off = true;
+          break;
+        default:
+          break;
+      }
     });
-
   return !off;
 }
 
@@ -226,7 +235,6 @@ function stackBook({ graphic, book, posX, jump }) {
 
 function stack(jump) {
   bookData = rawData.filter(applyFilters);
-
   const damp = 1 / numBooks;
   const scaleSin = $graphic.node().offsetWidth * 0.05;
   const scaleOff = 10;
