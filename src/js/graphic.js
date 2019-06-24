@@ -504,7 +504,6 @@ function setupUI() {
 }
 
 function fillStars(rating) {
-  console.log({ $starCont });
   $starCont
     .selectAll('.star')
     .classed('full', false)
