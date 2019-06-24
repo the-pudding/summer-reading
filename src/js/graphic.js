@@ -28,7 +28,7 @@ const $graphicEl = $graphic.node();
 const $graphicScale = $graphic.select('.graphic__scale');
 const $headerToggle = d3.select('.header__toggle');
 const $starCont = $tooltip.select('.stars');
-const $grLink = $tooltip.select('.goodreads-link')
+const $grLink = $tooltip.select('.goodreads-link');
 
 let $book = null;
 let $bookM = null;
@@ -146,12 +146,17 @@ function applyFilters(d) {
       const filter = filters[f];
       if ((f === 'years' && d.PubYear < +filter[0]) || d.PubYear > +filter[1])
         off = true;
-      if (f === 'hipster' && d.GoodreadsReviews >= obscureScale[1]) off = true;
-      if (f === 'short' && d.Pages >= 200) off = true;
-      if (f === 'long' && d.Pages <= 400) off = true;
+      if (
+        f === 'hipster' &&
+        d.GoodreadsReviews >= obscureScale[1] &&
+        d.PubYear > 1950
+      )
+        off = true;
+      if ((f === 'short' && d.Pages >= 200) || !d.Pages) off = true;
+      if ((f === 'long' && d.Pages <= 400) || !d.Pages) off = true;
       if (f === 'unrated' && d.GoodreadsRating > 0) off = true;
-      // if (f === 'unknown' && d.Subjects != '' && d.Summary != '' || d.GoodreadsRating > 0 ) off = true;
       if (f === 'pnw' && !d.Filters.includes('pnw')) off = true;
+      // if (f === 'unknown' && d.Subjects != '' && d.Summary != '' || d.GoodreadsRating > 0 ) off = true;
     });
 
   return !off;
@@ -491,7 +496,7 @@ function setupUI() {
 }
 
 function fillStars(rating) {
-  console.log({$starCont})
+  console.log({ $starCont });
   $starCont
     .selectAll('.star')
     .classed('full', false)
@@ -542,10 +547,8 @@ function openTooltip(d) {
     $goodreadsAttr.text('No ratings on Goodreads');
     $starCont.classed('is-hidden', true);
   } else if (!d.GoodreadsLink) {
-    $goodreadsAttr
-      .text('Not on Goodreads')
-    $grLink
-      .attr('href', 'https://goodreads.com');
+    $goodreadsAttr.text('Not on Goodreads');
+    $grLink.attr('href', 'https://goodreads.com');
 
     $starCont.classed('is-hidden', true);
   } else {
